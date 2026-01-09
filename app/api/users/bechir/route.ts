@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma"; // adapte le chemin si nécessaire
+import prisma from "@/lib/prisma"; 
 
 export async function GET(req: NextRequest) {
   try {
-    // Récupérer tous les enregistrements de la table InfosJets
     const InfosJets = await prisma.InfosJets.findMany();
 
     return NextResponse.json(InfosJets, { status: 200 });
