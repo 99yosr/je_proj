@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   try {
-    const InfosJets = await prisma.InfosJets.findMany();
+    const InfosJets = await prisma.infosJets.findMany();
 
     return NextResponse.json(InfosJets, { status: 200 });
   } catch (error) {
