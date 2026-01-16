@@ -1,6 +1,8 @@
+
 generator client {
   provider = "prisma-client-js"
 }
+
 
 datasource db {
   provider = "postgresql"
@@ -16,6 +18,7 @@ model User {
   email String  @unique
   name  String?
 }
+
 
 model News {
   id          Int      @id @default(autoincrement())
@@ -45,6 +48,7 @@ model Junior {
   city          String
   contact_email String?
 
+
 model InfosJets {
   id          Int      @id @default(autoincrement())
   titre       String
@@ -54,6 +58,7 @@ model InfosJets {
   lien        String
   createdAt   DateTime @default(now())
 }
+
 }
 
 model Juniors {
@@ -79,4 +84,5 @@ model Event {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
+
 
