@@ -13,6 +13,24 @@ model User {
   name  String?
 }
 
+model News {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  author    String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model Junior {
+  id            Int      @id @default(autoincrement())
+  created_at    DateTime @default(now())
+  name          String
+  role          String
+  city          String
+  contact_email String?
+
 model InfosJets {
   id          Int      @id @default(autoincrement())
   titre       String
