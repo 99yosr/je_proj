@@ -7,6 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
 model User {
   id    Int     @id @default(autoincrement())
   email String  @unique
@@ -49,6 +53,7 @@ model InfosJets {
   service     String
   lien        String
   createdAt   DateTime @default(now())
+}
 }
 
 model Juniors {
