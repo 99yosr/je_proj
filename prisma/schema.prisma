@@ -1,18 +1,59 @@
+<<<<<<< HEAD
+=======
+generator client {
+  provider = "prisma-client-js"
+}
+
+>>>>>>> origin/main
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+<<<<<<< HEAD
 generator client {
   provider = "prisma-client-js"
 }
 
+=======
+>>>>>>> origin/main
 model User {
   id    Int     @id @default(autoincrement())
   email String  @unique
   name  String?
 }
 
+<<<<<<< HEAD
+=======
+model News {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String
+  author      String?
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  author    String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model Junior {
+  id            Int      @id @default(autoincrement())
+  created_at    DateTime @default(now())
+  name          String
+  role          String
+  city          String
+  contact_email String?
+
+>>>>>>> origin/main
 model InfosJets {
   id          Int      @id @default(autoincrement())
   titre       String
@@ -21,4 +62,33 @@ model InfosJets {
   service     String
   lien        String
   createdAt   DateTime @default(now())
+<<<<<<< HEAD
 }
+=======
+}
+
+model Juniors {
+  id            BigInt   @id @default(autoincrement())
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  name          String?  @db.VarChar
+  city          String?  @db.VarChar
+  role          String?  @db.VarChar
+  contact_email String?  @db.VarChar
+}
+
+model Event {
+  id               Int      @id @default(autoincrement())
+  title            String
+  slug             String   @unique
+  shortDescription String
+  fullDescription  String   @db.Text
+  logoUrl          String?
+  featuredMediaUrl String?
+  date             DateTime?
+  location         String?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+>>>>>>> origin/main
