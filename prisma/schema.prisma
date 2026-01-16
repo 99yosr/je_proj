@@ -1,30 +1,22 @@
-<<<<<<< HEAD
-=======
 generator client {
   provider = "prisma-client-js"
 }
 
->>>>>>> origin/main
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-<<<<<<< HEAD
 generator client {
   provider = "prisma-client-js"
 }
 
-=======
->>>>>>> origin/main
 model User {
   id    Int     @id @default(autoincrement())
   email String  @unique
   name  String?
 }
 
-<<<<<<< HEAD
-=======
 model News {
   id          Int      @id @default(autoincrement())
   title       String
@@ -53,7 +45,6 @@ model Junior {
   city          String
   contact_email String?
 
->>>>>>> origin/main
 model InfosJets {
   id          Int      @id @default(autoincrement())
   titre       String
@@ -62,9 +53,7 @@ model InfosJets {
   service     String
   lien        String
   createdAt   DateTime @default(now())
-<<<<<<< HEAD
 }
-=======
 }
 
 model Juniors {
@@ -91,4 +80,3 @@ model Event {
   updatedAt        DateTime @updatedAt
 }
 
->>>>>>> origin/main
