@@ -20,6 +20,7 @@ model User {
   name      String
   role      Role     @default(RJE)
   createdAt DateTime @default(now())
+  eventsCreated Event[] @relation("EventCreator")
 }
 
 
@@ -41,7 +42,7 @@ model Junior {
   role          String
   city          String
   contact_email String?
-
+  events        Event[]
 }
 model InfosJets {
   id          Int      @id @default(autoincrement())
@@ -77,6 +78,10 @@ model Event {
   isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  juniorId         Int
+  junior           Junior   @relation(fields: [juniorId], references: [id])
+  createdById      String
+  createdBy        User     @relation("EventCreator", fields: [createdById], references: [id])
 }
 
 model Project {
