@@ -5,29 +5,33 @@ import { Prisma } from "@prisma/client";
 
 export async function PUT(req: NextRequest) {
   try {
-    const { id, titre, description, logo, service, lien } = await req.json();
+    const body = await req.json();
+    const { juniorId, nomJE, description, contact } = body;
 
-    if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    if (!juniorId) {
+      return NextResponse.json(
+        { error: "juniorId is required" },
+        { status: 400 }
+      );
     }
 
-    const data: Prisma.InfosJetsUpdateInput = {};
-
-    if (titre !== undefined) data.titre = titre;
-    if (description !== undefined) data.description = description;
-    if (logo !== undefined) data.logo = logo;
-    if (service !== undefined) data.service = service;
-    if (lien !== undefined) data.lien = lien;
-
-    const infosJet = await prisma.infosJets.update({
-      where: { id },
-      data,
+    const updatedFiche = await prisma.ficheJE.update({
+      where: {
+        juniorId: Number(juniorId), 
+      },
+      data: {
+        nomJE,
+        description,
+        contact,
+      },
+      include: {
+        junior: true,
+      },
     });
 
-    return NextResponse.json(infosJet, { status: 200 });
+    return NextResponse.json(updatedFiche, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }
 }
-
