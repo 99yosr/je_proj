@@ -7,10 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  RJE
+  ADMIN
+}
+
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(RJE)
+  createdAt DateTime @default(now())
+
+  eventsCreated Event[] @relation("EventCreator") // 1:N → User crée plusieurs Events
 }
 
 model News {
@@ -20,14 +30,84 @@ model News {
   author    String?
   image     String?
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
 }
 
 model Junior {
-  id            Int      @id @default(autoincrement())
-  created_at    DateTime @default(now())
+  id            Int        @id @default(autoincrement())
+  created_at    DateTime   @default(now())
   name          String
   role          String
   city          String
   contact_email String?
+
+  events        Event[]
+  ficheJE       FicheJE?
+  activites     Activite[]
+  projects      Project[]
+}
+
+model FicheJE {
+  nomJE       String
+  description String
+  contact     String
+  juniorId    Int      @unique
+  junior      Junior   @relation(fields: [juniorId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Event {
+  id               Int      @id @default(autoincrement())
+  title            String
+  slug             String   @unique
+  shortDescription String
+  fullDescription  String   @db.Text
+  logoUrl          String?
+  featuredMediaUrl String?
+  date             DateTime?
+  location         String?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  juniorId    Int
+  junior      Junior @relation(fields: [juniorId], references: [id])
+
+  createdById String
+  createdBy   User   @relation("EventCreator", fields: [createdById], references: [id])
+}
+
+model Project {
+  id          Int        @id @default(autoincrement())
+  titre       String
+  description String     @db.Text
+  statut      String
+  dateDebut   DateTime
+  dateFin     DateTime
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  juniorId    Int
+  junior      Junior     @relation(fields: [juniorId], references: [id])
+
+  feedbacks   Feedback[]
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  contenu   String   @db.Text
+  note      Int
+  projectId Int
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Activite {
+  id          Int      @id @default(autoincrement())
+  nom         String
+  description String
+
+  juniorId    Int
+  junior      Junior @relation(fields: [juniorId], references: [id])
 }
