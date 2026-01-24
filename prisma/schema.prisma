@@ -2,7 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -20,32 +19,34 @@ model User {
   name      String
   role      Role     @default(RJE)
   createdAt DateTime @default(now())
-  eventsCreated Event[] @relation("EventCreator")
+
+  eventsCreated Event[] @relation("EventCreator") // 1:N → User crée plusieurs Events
 }
 
-
-
 model News {
-  id          Int      @id @default(autoincrement())
-  title       String
-  content     String
-  author      String?
-  image       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  author    String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Junior {
-  id            Int      @id @default(autoincrement())
-  created_at    DateTime @default(now())
+  id            Int        @id @default(autoincrement())
+  created_at    DateTime   @default(now())
   name          String
   role          String
   city          String
   contact_email String?
-  events        Event[] 
+
+  events        Event[]
   ficheJE       FicheJE?
-  activites Activite[]
+  activites     Activite[]
+  projects      Project[]
 }
+
 model FicheJE {
   nomJE       String
   description String
@@ -53,16 +54,6 @@ model FicheJE {
   juniorId    Int      @unique
   junior      Junior   @relation(fields: [juniorId], references: [id])
   createdAt   DateTime @default(now())
-}
-
-
-model Juniors {
-  id            BigInt   @id @default(autoincrement())
-  created_at    DateTime @default(now()) @db.Timestamptz(6)
-  name          String?  @db.VarChar
-  city          String?  @db.VarChar
-  role          String?  @db.VarChar
-  contact_email String?  @db.VarChar
 }
 
 model Event {
@@ -78,10 +69,12 @@ model Event {
   isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  juniorId         Int
-  junior           Junior   @relation(fields: [juniorId], references: [id])
-  createdById      String
-  createdBy        User     @relation("EventCreator", fields: [createdById], references: [id])
+
+  juniorId    Int
+  junior      Junior @relation(fields: [juniorId], references: [id])
+
+  createdById String
+  createdBy   User   @relation("EventCreator", fields: [createdById], references: [id])
 }
 
 model Project {
@@ -93,6 +86,10 @@ model Project {
   dateFin     DateTime
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+
+  juniorId    Int
+  junior      Junior     @relation(fields: [juniorId], references: [id])
+
   feedbacks   Feedback[]
 }
 
@@ -114,7 +111,3 @@ model Activite {
   juniorId    Int
   junior      Junior @relation(fields: [juniorId], references: [id])
 }
-
-
-
-
