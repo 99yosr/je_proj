@@ -43,14 +43,14 @@ model Junior {
   city          String
   contact_email String?
   events        Event[]
+  ficheJE       FicheJE?
 }
-model InfosJets {
-  id          Int      @id @default(autoincrement())
-  titre       String
+model FicheJE {
+  nomJE       String
   description String
-  logo        String
-  service     String
-  lien        String
+  contact     String
+  juniorId    Int      @unique
+  junior      Junior   @relation(fields: [juniorId], references: [id])
   createdAt   DateTime @default(now())
 }
 
