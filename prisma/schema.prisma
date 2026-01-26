@@ -84,8 +84,8 @@ model Project {
   id          Int        @id @default(autoincrement())
   titre       String
   description String     @db.Text
-  statut      String
-  dateDebut   DateTime
+  statut      String     @default("EN_ATTENTE")
+  dateDebut   DateTime?
   dateFin     DateTime
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
