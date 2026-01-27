@@ -21,6 +21,12 @@ model User {
   createdAt DateTime @default(now())
 
   eventsCreated Event[] @relation("EventCreator") // 1:N → User crée plusieurs Events
+
+  newsCreated   News[]  @relation("NewsAuthor")   // 1:N → User écrit plusieurs News
+  
+  sentMessages     Message[] @relation("MessageSender")     // Messages sent by user
+  receivedMessages Message[] @relation("MessageReceiver")   // Messages received by user
+
 }
 
 model News {
@@ -111,3 +117,22 @@ model Activite {
   juniorId    Int
   junior      Junior @relation(fields: [juniorId], references: [id])
 }
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String   @db.Text
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  senderId   String
+  sender     User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiverId String
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+}
+
+
