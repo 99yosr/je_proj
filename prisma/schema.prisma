@@ -21,22 +21,22 @@ model User {
   createdAt DateTime @default(now())
 
   eventsCreated Event[] @relation("EventCreator") // 1:N → User crée plusieurs Events
+
   newsCreated   News[]  @relation("NewsAuthor")   // 1:N → User écrit plusieurs News
   
   sentMessages     Message[] @relation("MessageSender")     // Messages sent by user
   receivedMessages Message[] @relation("MessageReceiver")   // Messages received by user
+
 }
 
 model News {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
+  author    String?
   image     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  authorId String?   // clé étrangère vers User
-  author   User?     @relation("NewsAuthor", fields: [authorId], references: [id])
 }
 
 model Junior {
@@ -134,3 +134,5 @@ model Message {
   @@index([receiverId])
   @@index([createdAt])
 }
+
+
