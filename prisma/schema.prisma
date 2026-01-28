@@ -2,7 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -20,11 +19,20 @@ model User {
   name      String
   role      Role     @default(RJE)
   createdAt DateTime @default(now())
+
   eventsCreated Event[] @relation("EventCreator")
   newsCreated   News[]  @relation("NewsAuthor")
 }
 
 
+  eventsCreated Event[] @relation("EventCreator") // 1:N → User crée plusieurs Events
+
+  newsCreated   News[]  @relation("NewsAuthor")   // 1:N → User écrit plusieurs News
+  
+  sentMessages     Message[] @relation("MessageSender")     // Messages sent by user
+  receivedMessages Message[] @relation("MessageReceiver")   // Messages received by user
+
+}
 
 model News {
   id        Int      @id @default(autoincrement())
@@ -35,38 +43,33 @@ model News {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+
   authorUser   User?   @relation("NewsAuthor", fields: [authorId], references: [id])
   authorId     String?
+
 }
 
 model Junior {
-  id            Int      @id @default(autoincrement())
-  created_at    DateTime @default(now())
+  id            Int        @id @default(autoincrement())
+  created_at    DateTime   @default(now())
   name          String
   role          String
   city          String
   contact_email String?
+
   events        Event[]
+  ficheJE       FicheJE?
+  activites     Activite[]
+  projects      Project[]
 }
-model InfosJets {
-  id          Int      @id @default(autoincrement())
-  titre       String
+
+model FicheJE {
+  nomJE       String
   description String
-  logo        String
-  service     String
-  lien        String
+  contact     String
+  juniorId    Int      @unique
+  junior      Junior   @relation(fields: [juniorId], references: [id])
   createdAt   DateTime @default(now())
-}
-
-
-
-model Juniors {
-  id            BigInt   @id @default(autoincrement())
-  created_at    DateTime @default(now()) @db.Timestamptz(6)
-  name          String?  @db.VarChar
-  city          String?  @db.VarChar
-  role          String?  @db.VarChar
-  contact_email String?  @db.VarChar
 }
 
 model Event {
@@ -82,10 +85,12 @@ model Event {
   isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  juniorId         Int
-  junior           Junior   @relation(fields: [juniorId], references: [id])
-  createdById      String
-  createdBy        User     @relation("EventCreator", fields: [createdById], references: [id])
+
+  juniorId    Int
+  junior      Junior @relation(fields: [juniorId], references: [id])
+
+  createdById String
+  createdBy   User   @relation("EventCreator", fields: [createdById], references: [id])
 }
 
 model Project {
@@ -97,6 +102,7 @@ model Project {
   dateFin     DateTime
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+
   
   juniorId    Int
   junior      Junior     @relation(fields: [juniorId], references: [id])
@@ -112,6 +118,32 @@ model Feedback {
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Activite {
+  id          Int      @id @default(autoincrement())
+  nom         String
+  description String
+
+  juniorId    Int
+  junior      Junior @relation(fields: [juniorId], references: [id])
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String   @db.Text
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  senderId   String
+  sender     User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiverId String
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
 }
 
 

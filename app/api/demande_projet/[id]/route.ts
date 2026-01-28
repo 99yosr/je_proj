@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+
 import { sendRefusalEmail } from "@/lib/email";
+
 
 export async function GET(
   request: NextRequest,
@@ -39,6 +41,7 @@ export async function GET(
       { status: 500 }
     );
   }
+ 
 }
 
 export async function PATCH(
@@ -81,4 +84,5 @@ export async function PATCH(
       { status: 500 }
     );
   }
+
 }

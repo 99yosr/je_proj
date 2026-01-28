@@ -6,6 +6,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { titre, description, dateFin, juniorId } = body;
 
+
     if (!titre || !description || !dateFin || !juniorId) {
       return NextResponse.json(
         { error: "Champs obligatoires manquants" },
@@ -19,6 +20,7 @@ export async function POST(request: NextRequest) {
         description,
         dateFin: new Date(dateFin),
         statut: "EN_ATTENTE",
+
         junior: {
           connect: { id: Number(juniorId) },
         },
