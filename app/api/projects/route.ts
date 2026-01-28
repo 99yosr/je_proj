@@ -7,6 +7,7 @@ export async function GET() {
     const projects = await prisma.project.findMany({
       include: {
         feedbacks: true,
+        junior: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -27,12 +28,12 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { titre, description, statut, dateDebut, dateFin } = body;
+    const { titre, description, statut, dateDebut, dateFin, juniorId } = body;
 
     // Validate required fields
-    if (!titre || !description || !statut || !dateDebut || !dateFin) {
+    if (!titre || !description || !statut || !dateFin || !juniorId) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Champs obligatoires manquants' },
         { status: 400 }
       );
     }
@@ -42,12 +43,16 @@ export async function POST(request: NextRequest) {
       data: {
         titre,
         description,
-        statut,
-        dateDebut: new Date(dateDebut),
+        statut: statut || "EN_ATTENTE",
+        dateDebut: dateDebut ? new Date(dateDebut) : null,
         dateFin: new Date(dateFin),
+        junior: {
+          connect: { id: Number(juniorId) },
+        },
       },
       include: {
         feedbacks: true,
+        junior: true,
       },
     });
 

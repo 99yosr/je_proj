@@ -20,6 +20,11 @@ model User {
   role      Role     @default(RJE)
   createdAt DateTime @default(now())
 
+  eventsCreated Event[] @relation("EventCreator")
+  newsCreated   News[]  @relation("NewsAuthor")
+}
+
+
   eventsCreated Event[] @relation("EventCreator") // 1:N → User crée plusieurs Events
 
   newsCreated   News[]  @relation("NewsAuthor")   // 1:N → User écrit plusieurs News
@@ -37,6 +42,11 @@ model News {
   image     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+
+  authorUser   User?   @relation("NewsAuthor", fields: [authorId], references: [id])
+  authorId     String?
+
 }
 
 model Junior {
@@ -93,9 +103,10 @@ model Project {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
+  
   juniorId    Int
   junior      Junior     @relation(fields: [juniorId], references: [id])
-
+  
   feedbacks   Feedback[]
 }
 
