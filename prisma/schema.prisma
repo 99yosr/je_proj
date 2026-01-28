@@ -21,18 +21,22 @@ model User {
   role      Role     @default(RJE)
   createdAt DateTime @default(now())
   eventsCreated Event[] @relation("EventCreator")
+  newsCreated   News[]  @relation("NewsAuthor")
 }
 
 
 
 model News {
-  id          Int      @id @default(autoincrement())
-  title       String
-  content     String
-  author      String?
-  image       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  author    String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorUser   User?   @relation("NewsAuthor", fields: [authorId], references: [id])
+  authorId     String?
 }
 
 model Junior {
@@ -88,11 +92,15 @@ model Project {
   id          Int        @id @default(autoincrement())
   titre       String
   description String     @db.Text
-  statut      String
-  dateDebut   DateTime
+  statut      String     @default("EN_ATTENTE")
+  dateDebut   DateTime?
   dateFin     DateTime
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+  
+  juniorId    Int
+  junior      Junior     @relation(fields: [juniorId], references: [id])
+  
   feedbacks   Feedback[]
 }
 

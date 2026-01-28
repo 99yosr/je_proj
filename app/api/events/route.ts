@@ -24,10 +24,12 @@ export async function POST(req: NextRequest) {
             featuredMediaUrl,
             date,
             location,
-            isActive
+            isActive,
+            juniorId,
+            createdById
         } = body;
 
-        if (!title || !slug || !shortDescription || !fullDescription) {
+        if (!title || !slug || !shortDescription || !fullDescription || !juniorId || !createdById) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
@@ -42,6 +44,8 @@ export async function POST(req: NextRequest) {
                 date: date ? new Date(date) : null,
                 location: location || null,
                 isActive: isActive ?? true,
+                juniorId: Number(juniorId),
+                createdById: createdById,
             },
         });
         return NextResponse.json(event);
