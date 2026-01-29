@@ -22,12 +22,6 @@ model User {
 
   eventsCreated Event[] @relation("EventCreator")
   newsCreated   News[]  @relation("NewsAuthor")
-}
-
-
-  eventsCreated Event[] @relation("EventCreator") // 1:N → User crée plusieurs Events
-
-  newsCreated   News[]  @relation("NewsAuthor")   // 1:N → User écrit plusieurs News
   
   sentMessages     Message[] @relation("MessageSender")     // Messages sent by user
   receivedMessages Message[] @relation("MessageReceiver")   // Messages received by user
@@ -103,7 +97,7 @@ model Project {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  
+  revenu      Float?
   juniorId    Int
   junior      Junior     @relation(fields: [juniorId], references: [id])
   
