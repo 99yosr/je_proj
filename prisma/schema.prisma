@@ -22,7 +22,7 @@ model User {
 
   eventsCreated Event[] @relation("EventCreator")
   newsCreated   News[]  @relation("NewsAuthor")
-  
+
   sentMessages     Message[] @relation("MessageSender")     // Messages sent by user
   receivedMessages Message[] @relation("MessageReceiver")   // Messages received by user
 
@@ -85,6 +85,8 @@ model Event {
 
   createdById String
   createdBy   User   @relation("EventCreator", fields: [createdById], references: [id])
+
+  feedbacks   Feedback[]
 }
 
 model Project {
@@ -108,8 +110,13 @@ model Feedback {
   id        Int      @id @default(autoincrement())
   contenu   String   @db.Text
   note      Int
-  projectId Int
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  projectId Int?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  eventId   Int?
+  event     Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
