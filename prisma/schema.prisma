@@ -23,7 +23,6 @@ model User {
   eventsCreated Event[] @relation("EventCreator")
   newsCreated   News[]  @relation("NewsAuthor")
 
-
   sentMessages     Message[] @relation("MessageSender")     // Messages sent by user
   receivedMessages Message[] @relation("MessageReceiver")   // Messages received by user
 
@@ -100,7 +99,7 @@ model Project {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  
+  revenu      Float?
   juniorId    Int
   junior      Junior     @relation(fields: [juniorId], references: [id])
   
