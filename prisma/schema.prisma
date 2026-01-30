@@ -102,7 +102,7 @@ model Project {
   revenu      Float?
   juniorId    Int
   junior      Junior     @relation(fields: [juniorId], references: [id])
-
+  
   feedbacks   Feedback[]
 }
 
@@ -116,6 +116,7 @@ model Feedback {
 
   eventId   Int?
   event     Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

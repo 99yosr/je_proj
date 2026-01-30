@@ -7,30 +7,47 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { name, email } = await req.json();
-  if (!email) return NextResponse.json({ error: "Email is required" }, { status: 400 });
+  try {
+    const { name, email, password } = await req.json();
+    if (!email || !password) {
+      return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    }
 
-  const user = await prisma.user.create({
-    data: { name, email },
-  });
-  return NextResponse.json(user);
+    const user = await prisma.user.create({
+      data: { name, email, password },
+    });
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
+  }
 }
 
 export async function PUT(req: NextRequest) {
-  const { id, name, email } = await req.json();
-  if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
+  try {
+    const { id, name, email, password } = await req.json();
+    if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
 
-  const user = await prisma.user.update({
-    where: { id },
-    data: { name, email },
-  });
-  return NextResponse.json(user);
+    const user = await prisma.user.update({
+      where: { id },
+      data: { name, email, password },
+    });
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: NextRequest) {
-  const { id } = await req.json();
-  if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
+  try {
+    const { id } = await req.json();
+    if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
 
-  await prisma.user.delete({ where: { id } });
-  return NextResponse.json({ message: "User deleted" });
+    await prisma.user.delete({ where: { id } });
+    return NextResponse.json({ message: "User deleted" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
+  }
 }
