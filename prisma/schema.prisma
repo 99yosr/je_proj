@@ -20,7 +20,12 @@ model User {
   role      Role     @default(RJE)
   createdAt DateTime @default(now())
 
-  eventsCreated Event[] @relation("EventCreator") // 1:N → User crée plusieurs Events
+  eventsCreated Event[] @relation("EventCreator")
+  newsCreated   News[]  @relation("NewsAuthor")
+
+  sentMessages     Message[] @relation("MessageSender")     // Messages sent by user
+  receivedMessages Message[] @relation("MessageReceiver")   // Messages received by user
+
 }
 
 model News {
@@ -31,6 +36,11 @@ model News {
   image     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+
+  authorUser   User?   @relation("NewsAuthor", fields: [authorId], references: [id])
+  authorId     String?
+
 }
 
 model Junior {
@@ -75,18 +85,21 @@ model Event {
 
   createdById String
   createdBy   User   @relation("EventCreator", fields: [createdById], references: [id])
+
+  feedbacks   Feedback[]
 }
 
 model Project {
   id          Int        @id @default(autoincrement())
   titre       String
   description String     @db.Text
-  statut      String
-  dateDebut   DateTime
+  statut      String     @default("EN_ATTENTE")
+  dateDebut   DateTime?
   dateFin     DateTime
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
+  revenu      Float?
   juniorId    Int
   junior      Junior     @relation(fields: [juniorId], references: [id])
 
@@ -97,8 +110,13 @@ model Feedback {
   id        Int      @id @default(autoincrement())
   contenu   String   @db.Text
   note      Int
-  projectId Int
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  projectId Int?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  eventId   Int?
+  event     Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -111,3 +129,21 @@ model Activite {
   juniorId    Int
   junior      Junior @relation(fields: [juniorId], references: [id])
 }
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String   @db.Text
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  senderId   String
+  sender     User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiverId String
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+}
+
