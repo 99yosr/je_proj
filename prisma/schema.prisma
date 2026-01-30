@@ -113,10 +113,11 @@ model Feedback {
 
   projectId Int?
   project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
+
   eventId   Int?
   event     Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  
+
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -146,5 +147,4 @@ model Message {
   @@index([receiverId])
   @@index([createdAt])
 }
-
 
