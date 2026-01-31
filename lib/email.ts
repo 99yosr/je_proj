@@ -32,6 +32,5 @@ L'équipe JET Project`,
         console.log(`Email de refus envoyé à ${to} pour le projet "${projectTitle}"`);
     } catch (error) {
         console.error("Erreur lors de l'envoi de l'email de refus:", error);
-        // On ne bloque pas le flow principal si l'email échoue, mais on log l'erreur
     }
 }

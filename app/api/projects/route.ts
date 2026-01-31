@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAuth } from "@/lib/auth";
 
 // GET - Get all projects
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { error, user } = await requireAuth(request);
+      if (error) return error;
   try {
     const projects = await prisma.project.findMany({
       include: {
@@ -26,6 +29,7 @@ export async function GET() {
 
 // POST - Create a new project
 export async function POST(request: NextRequest) {
+
   try {
     const body = await request.json();
     const { titre, description, statut, dateDebut, dateFin, juniorId } = body;

@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { requireAuth } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
+  const { error, user } = await requireAuth(req);
+  if (error) return error;
+
   try {
     const { nom, description, juniorId } = await req.json();
 
@@ -28,6 +32,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const { error, user } = await requireAuth(req);
+  if (error) return error;
+
   try {
     const activites = await prisma.activite.findMany({
       include: { junior: true } // inclut les infos du junior
@@ -40,6 +47,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const { error, user } = await requireAuth(req);
+  if (error) return error;
+
   try {
     const { id, nom, description, juniorId } = await req.json();
 
@@ -65,6 +75,9 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const { error, user } = await requireAuth(req);
+  if (error) return error;
+
   try {
     const { id } = await req.json();
 
