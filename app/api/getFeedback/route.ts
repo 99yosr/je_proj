@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { requireRole  } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
+  const { error, user } = await requireRole(req, ['RJE']);
+  if (error) return error;
   try {
     const feedbacks = await prisma.feedback.findMany({
       include: {

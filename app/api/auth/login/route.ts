@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '../../../../lib/prisma'
 import bcrypt from 'bcryptjs'
+import { getIronSession } from 'iron-session'
+import { sessionOptions } from '../../../../lib/session'
+import { SessionData } from '../../../../types/iron-session'
 
 export const runtime = 'nodejs'
 
@@ -10,6 +13,9 @@ type LoginBody = {
 }
 
 export async function POST(req: NextRequest) {
+  const res = NextResponse.json({})
+  const session = await getIronSession<SessionData>(req, res, sessionOptions)
+
   const body: LoginBody = await req.json()
   const { email, password } = body
 
@@ -40,15 +46,20 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // ✅ Login successful
+  // ✅ Save user in session
+  session.user = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  }
+
+  await session.save()
+
+  // ✅ Return response WITH the session cookie
   return NextResponse.json(
     {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
+      user: session.user,
     },
     { status: 200 }
   )

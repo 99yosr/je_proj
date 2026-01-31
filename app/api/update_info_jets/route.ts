@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma"; 
 import { Prisma } from "@prisma/client";
+import { requireAuth } from "@/lib/auth";
 
 
 export async function PUT(req: NextRequest) {
+  const { error, user } = await requireAuth(req);
+      if (error) return error;
   try {
     const body = await req.json();
     const { juniorId, nomJE, description, contact } = body;

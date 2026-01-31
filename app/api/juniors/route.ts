@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../lib/prisma";
+import { requireRole } from "@/lib/auth";
 
 export async function GET() {
   try {
@@ -14,7 +15,10 @@ export async function GET() {
   }
 }
 
+
 export async function POST(req: NextRequest) {
+  const { error, user } = await requireRole(req, ['ADMIN']);
+      if (error) return error;
   try {
     const { name, role, city, contact_email } = await req.json();
     if (!name || !role || !city)
@@ -38,6 +42,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const { error, user } = await requireRole(req, ['ADMIN']);
+      if (error) return error;
   try {
     const { id, name, role, city, contact_email } = await req.json();
     if (id === undefined)
@@ -60,6 +66,8 @@ export async function PUT(req: NextRequest) {
 
 
 export async function DELETE(req: NextRequest) {
+  const { error, user } = await requireRole(req, ['ADMIN']);
+      if (error) return error;
   try {
     const { id } = await req.json();
     if (id === undefined)

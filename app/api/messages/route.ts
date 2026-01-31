@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAuth } from "@/lib/auth";
 
 // GET: Retrieve messages (sent or received)
 export async function GET(request: NextRequest) {
+  const { error, user } = await requireAuth(request);
+      if (error) return error;
   try {
     const userId = request.headers.get('x-user-id');
     
@@ -69,6 +72,8 @@ export async function GET(request: NextRequest) {
 
 // POST: Send a new message
 export async function POST(request: NextRequest) {
+  const { error, user } = await requireAuth(request);
+      if (error) return error;
   try {
     const userId = request.headers.get('x-user-id');
     

@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAuth } from "@/lib/auth";
 
 // GET - Get a single project by ID
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { error, user } = await requireAuth(request);
+      if (error) return error;
   try {
     const { id: idParam } = await params;
     const id = parseInt(idParam);
@@ -46,6 +49,8 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { error, user } = await requireAuth(request);
+      if (error) return error;
   try {
     const { id: idParam } = await params;
     const id = parseInt(idParam);
@@ -102,6 +107,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { error, user } = await requireAuth(request);
+      if (error) return error;
   try {
     const { id: idParam } = await params;
     const id = parseInt(idParam);
