@@ -13,54 +13,69 @@ type LoginBody = {
 }
 
 export async function POST(req: NextRequest) {
-  const res = NextResponse.json({})
-  const session = await getIronSession<SessionData>(req, res, sessionOptions)
+  try {
+    const body: LoginBody = await req.json()
+    const { email, password } = body
 
-  const body: LoginBody = await req.json()
-  const { email, password } = body
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: 'Missing email or password' },
+        { status: 400 }
+      )
+    }
 
-  if (!email || !password) {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      )
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password)
+
+    if (!passwordMatch) {
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      )
+    }
+
+    // Create a proper response object
+    const response = NextResponse.json(
+      {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        },
+      },
+      { status: 200 }
+    )
+
+    // Get session with the response object
+    const session = await getIronSession<SessionData>(req, response, sessionOptions)
+
+    // Save user in session
+    session.user = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    }
+
+    await session.save()
+
+    return response
+  } catch (error) {
+    console.error('Login error:', error)
     return NextResponse.json(
-      { error: 'Missing email or password' },
-      { status: 400 }
+      { error: 'Internal server error' },
+      { status: 500 }
     )
   }
-
-  const user = await prisma.user.findUnique({
-    where: { email },
-  })
-
-  if (!user) {
-    return NextResponse.json(
-      { error: 'Invalid credentials' },
-      { status: 401 }
-    )
-  }
-
-  const passwordMatch = await bcrypt.compare(password, user.password)
-
-  if (!passwordMatch) {
-    return NextResponse.json(
-      { error: 'Invalid credentials' },
-      { status: 401 }
-    )
-  }
-
-  // ✅ Save user in session
-  session.user = {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-  }
-
-  await session.save()
-
-  // ✅ Return response WITH the session cookie
-  return NextResponse.json(
-    {
-      user: session.user,
-    },
-    { status: 200 }
-  )
 }

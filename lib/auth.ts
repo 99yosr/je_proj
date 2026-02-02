@@ -4,13 +4,14 @@ import { sessionOptions } from './session'
 import { SessionData } from '../types/iron-session'
 
 export async function getSession(req: NextRequest) {
-  const res = NextResponse.json({})
+  const res = new NextResponse()
   const session = await getIronSession<SessionData>(req, res, sessionOptions)
-  return session
+  return { session, res }
 }
 
 export async function requireAuth(req: NextRequest) {
-  const session = await getSession(req)
+  const res = new NextResponse()
+  const session = await getIronSession<SessionData>(req, res, sessionOptions)
   
   if (!session.user) {
     return {
@@ -25,6 +26,7 @@ export async function requireAuth(req: NextRequest) {
   return {
     error: null,
     user: session.user,
+    session,
   }
 }
 
@@ -32,11 +34,20 @@ export async function requireRole(
   req: NextRequest,
   allowedRoles: Array<'ADMIN' | 'RJE'>
 ) {
-  const { error, user } = await requireAuth(req)
+  const res = new NextResponse()
+  const session = await getIronSession<SessionData>(req, res, sessionOptions)
   
-  if (error) return { error, user: null }
+  if (!session.user) {
+    return {
+      error: NextResponse.json(
+        { error: 'Unauthorized - Please login' },
+        { status: 401 }
+      ),
+      user: null,
+    }
+  }
   
-  if (!allowedRoles.includes(user!.role)) {
+  if (!allowedRoles.includes(session.user.role)) {
     return {
       error: NextResponse.json(
         { error: 'Forbidden - Insufficient permissions' },
@@ -48,6 +59,7 @@ export async function requireRole(
 
   return {
     error: null,
-    user,
+    user: session.user,
+    session,
   }
 }
