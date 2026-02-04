@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
 
 type News = {
@@ -250,14 +251,16 @@ export default function NewsPage() {
                         <button 
                           className="btn-edit"
                           onClick={() => handleOpenModal(item)}
+                          title="Edit"
                         >
-                          Edit
+                          <Pencil size={18} />
                         </button>
                         <button 
                           className="btn-delete"
                           onClick={() => handleDelete(item.id)}
+                          title="Delete"
                         >
-                          Delete
+                          <Trash2 size={18} />
                         </button>
                       </td>
                     </tr>
