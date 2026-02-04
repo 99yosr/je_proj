@@ -21,7 +21,6 @@ model User {
   createdAt DateTime @default(now())
 
   eventsCreated Event[] @relation("EventCreator")
-  newsCreated   News[]  @relation("NewsAuthor")
   sentMessages     Message[] @relation("MessageSender")     // Messages sent by user
   receivedMessages Message[] @relation("MessageReceiver")   // Messages received by user
 }
@@ -38,11 +37,6 @@ model News {
   image     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-
-  authorUser   User?   @relation("NewsAuthor", fields: [authorId], references: [id])
-  authorId     String?
-
 }
 
 model Junior {
