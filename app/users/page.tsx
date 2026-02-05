@@ -42,20 +42,16 @@ export default function UsersPage() {
     fetchUsers()
   }, [])
 
-  const handleOpenModal = (user?: User) => {
-    if (user) {
-      setEditingUser(user)
-      setFormData({
-        name: user.name || '',
-        email: user.email,
-        role: user.role || 'USER',
-      })
-    } else {
-      setEditingUser(null)
-      setFormData({ name: '', email: '', role: 'USER' })
-    }
+  const handleOpenModal = (user: User) => {  // require a user
+    setEditingUser(user)
+    setFormData({
+      name: user.name || '',
+      email: user.email,
+      role: user.role || 'USER',
+    })
     setIsModalOpen(true)
   }
+
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
@@ -192,9 +188,7 @@ export default function UsersPage() {
         </div>
 
         {/* Floating Add Button */}
-        <button className="floating-add-button" onClick={() => handleOpenModal()} title="Add new user">
-          <Plus size={24} />
-        </button>
+
 
         {/* Modal */}
         {isModalOpen && (
