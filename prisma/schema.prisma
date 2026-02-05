@@ -68,12 +68,13 @@ model Event {
   slug             String   @unique
   shortDescription String
   fullDescription  String   @db.Text
-  logoUrl          String?
-  featuredMediaUrl String?
+  logoData         Bytes?
+  logoMimeType     String?
+  featuredMediaData Bytes?
+  featuredMediaMimeType String?
   date             DateTime?
   location         String?
   isActive         Boolean  @default(true)
-  createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   juniorId    Int
@@ -143,4 +144,5 @@ model Message {
   @@index([receiverId])
   @@index([createdAt])
 }
+
 
