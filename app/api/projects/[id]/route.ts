@@ -89,6 +89,7 @@ export async function PUT(
       },
       include: {
         feedbacks: true,
+        junior: true, // To keep the same junior name after updates.
       },
     });
 
