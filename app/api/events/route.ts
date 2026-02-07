@@ -5,22 +5,39 @@ import { requireAuth } from '../../../lib/auth';
 export async function GET(req: NextRequest) {
     try {
         const events = await prisma.event.findMany({
-            orderBy: { updatedAt: 'desc' },
-            include: {
-                createdBy: { select: { name: true, email: true } },
-                junior: { select: { name: true } },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                shortDescription: true,
+                fullDescription: true,
+                date: true,
+                location: true,
+                isActive: true,
+                updatedAt: true,
+                juniorId: true,
+                createdById: true,
+                // Only select MIME types to check if images exist (not the binary data!)
+                logoMimeType: true,
+                featuredMediaMimeType: true,
+                User: { select: { name: true, email: true } },
+                Junior: { select: { name: true } },
             },
+            orderBy: { updatedAt: 'desc' },
         });
 
         // Transform events to include proper URLs for images
         const transformedEvents = events.map((event: any) => ({
             ...event,
-            logoUrl: event.logoData ? `/api/events/${event.id}/image?type=logo` : null,
-            featuredMediaUrl: event.featuredMediaData ? `/api/events/${event.id}/image?type=featured` : null,
-            // Remove heavy binary data from response
-            logoData: undefined,
+            // Rename relation fields to expected frontend names
+            createdBy: event.User,
+            junior: event.Junior,
+            User: undefined,
+            Junior: undefined,
+            logoUrl: event.logoMimeType ? `/api/events/${event.id}/image?type=logo` : null,
+            featuredMediaUrl: event.featuredMediaMimeType ? `/api/events/${event.id}/image?type=featured` : null,
+            // Remove MIME types from response (not needed by frontend)
             logoMimeType: undefined,
-            featuredMediaData: undefined,
             featuredMediaMimeType: undefined,
         }));
 

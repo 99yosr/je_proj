@@ -12,6 +12,22 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
 
         const event = await prisma.event.findUnique({
             where: { id: eventId },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                shortDescription: true,
+                fullDescription: true,
+                date: true,
+                location: true,
+                isActive: true,
+                updatedAt: true,
+                juniorId: true,
+                createdById: true,
+                // Exclude binary data
+                logoMimeType: true,
+                featuredMediaMimeType: true,
+            },
         });
 
         if (!event) return NextResponse.json({ error: "Event not found" }, { status: 404 });

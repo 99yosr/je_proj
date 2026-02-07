@@ -25,7 +25,7 @@ model Event {
   location              String?
   isActive              Boolean    @default(true)
   createdAt             DateTime   @default(now())
-  updatedAt             DateTime
+  updatedAt             DateTime   @updatedAt
   juniorId              Int
   createdById           String
   featuredMediaData     Bytes?
@@ -35,6 +35,10 @@ model Event {
   User                  User       @relation(fields: [createdById], references: [id])
   Junior                Junior     @relation(fields: [juniorId], references: [id])
   Feedback              Feedback[]
+
+  @@index([updatedAt])
+  @@index([juniorId])
+  @@index([isActive])
 }
 
 model Feedback {
