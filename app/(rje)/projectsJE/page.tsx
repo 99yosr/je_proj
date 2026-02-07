@@ -291,8 +291,7 @@ export default function ProjectsPage() {
             Manage your projects and track their progress
           </p>
         </div>
-        <ProjectsChartCard juniorId={1}/>
-        <FeedbackStatsCard />
+
 
 
         {/* Table Card */}
