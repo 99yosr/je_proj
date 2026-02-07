@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
-import { getIronSession } from 'iron-session';
-import { sessionOptions } from '../../../lib/session';
-import { SessionData } from '../../../types/iron-session';
+import { requireAuth } from '../../../lib/auth';
 
 export async function GET(req: NextRequest) {
     try {
@@ -35,9 +33,12 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     try {
-        const session = await getIronSession<SessionData>(req, new NextResponse(), sessionOptions);
-        // Note: session check might be loose here if relying on client-side check, 
-        // but ideally we check session.user here. 
+        // Require authentication and get user from session
+        const authResult = await requireAuth(req);
+        if (authResult.error) {
+            return authResult.error;
+        }
+        const user = authResult.user!;
 
         const formData = await req.formData();
 
@@ -48,12 +49,11 @@ export async function POST(req: NextRequest) {
         const dateStr = formData.get('date') as string;
         const location = formData.get('location') as string;
         const juniorId = formData.get('juniorId') as string;
-        const createdById = formData.get('createdById') as string;
 
         const logoFile = formData.get('logoFile') as File | null;
         const featuredMediaFile = formData.get('featuredMediaFile') as File | null;
 
-        if (!title || !slug || !shortDescription || !fullDescription || !juniorId || !createdById) {
+        if (!title || !slug || !shortDescription || !fullDescription || !juniorId) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
                 date: dateStr ? new Date(dateStr) : null,
                 location,
                 juniorId: parseInt(juniorId),
-                createdById,
+                createdById: user.id, // Use authenticated user's ID from session
                 logoData,
                 logoMimeType,
                 featuredMediaData,

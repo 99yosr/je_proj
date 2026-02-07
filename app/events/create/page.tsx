@@ -16,7 +16,6 @@ export default function CreateEventPage() {
     const [error, setError] = useState<string | null>(null)
     const [juniors, setJuniors] = useState<Junior[]>([])
 
-    // Form State
     const [title, setTitle] = useState('')
     const [slug, setSlug] = useState('')
     const [shortDescription, setShortDescription] = useState('')
@@ -24,7 +23,6 @@ export default function CreateEventPage() {
     const [date, setDate] = useState('')
     const [location, setLocation] = useState('')
     const [juniorId, setJuniorId] = useState('')
-    const [createdById, setCreatedById] = useState('') // Just in case, keep it empty initially
 
     // File states
     const [logoFile, setLogoFile] = useState<File | null>(null)
@@ -32,8 +30,6 @@ export default function CreateEventPage() {
     // Preview URLs (local object URLs)
     const [logoPreview, setLogoPreview] = useState<string>('')
     const [featuredPreview, setFeaturedPreview] = useState<string>('')
-
-    const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
 
     useEffect(() => {
@@ -46,29 +42,18 @@ export default function CreateEventPage() {
     }, [title])
 
     useEffect(() => {
-        // Fetch initial data
-        const fetchData = async () => {
+        // Fetch Juniors
+        const fetchJuniors = async () => {
             try {
-                // 1. Fetch Juniors
                 const resJuniors = await fetch('/api/juniors')
                 if (resJuniors.ok) {
                     setJuniors(await resJuniors.json())
                 }
-
-                // 2. Fetch Current User
-                const resMe = await fetch('/api/auth/me')
-                if (resMe.ok) {
-                    const userData = await resMe.json()
-                    setCurrentUserId(userData.id)
-                } else {
-                    setError('Failed to identity user. Please log in.')
-                }
-
             } catch (err) {
-                console.error('Failed to load initial data', err)
+                console.error('Failed to load juniors', err)
             }
         }
-        fetchData()
+        fetchJuniors()
     }, [])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setFile: (f: File | null) => void, setPreview: (u: string) => void) => {
@@ -84,12 +69,6 @@ export default function CreateEventPage() {
         setLoading(true)
         setError(null)
 
-        if (!currentUserId) {
-            setError('Could not identify current user.')
-            setLoading(false)
-            return
-        }
-
         try {
             const formData = new FormData()
             formData.append('title', title)
@@ -99,8 +78,8 @@ export default function CreateEventPage() {
             formData.append('date', date)
             formData.append('location', location)
             formData.append('juniorId', juniorId)
-            formData.append('createdById', currentUserId)
             formData.append('isActive', 'true')
+            // Note: createdById is now handled server-side via session
 
             if (logoFile) {
                 formData.append('logoFile', logoFile)

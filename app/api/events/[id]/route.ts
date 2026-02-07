@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../../lib/prisma';
+import { requireAuth } from '../../../../lib/auth';
 
 type Params = Promise<{ id: string }>
 
@@ -22,6 +23,12 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
 
 export async function PUT(req: NextRequest, { params }: { params: Params }) {
     try {
+        // Require authentication
+        const authResult = await requireAuth(req);
+        if (authResult.error) {
+            return authResult.error;
+        }
+
         const { id } = await params;
         const eventId = parseInt(id);
         if (isNaN(eventId)) return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
@@ -78,6 +85,12 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
 
 export async function DELETE(req: NextRequest, { params }: { params: Params }) {
     try {
+        // Require authentication
+        const authResult = await requireAuth(req);
+        if (authResult.error) {
+            return authResult.error;
+        }
+
         const { id } = await params;
         const eventId = parseInt(id);
         if (isNaN(eventId)) return NextResponse.json({ error: "Invalid ID" }, { status: 400 });

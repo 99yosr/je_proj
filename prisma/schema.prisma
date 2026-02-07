@@ -7,36 +7,55 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  RJE
-  ADMIN
+model Activite {
+  id          Int    @id @default(autoincrement())
+  nom         String
+  description String
+  juniorId    Int
+  Junior      Junior @relation(fields: [juniorId], references: [id])
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(RJE)
-  createdAt DateTime @default(now())
-
-  eventsCreated Event[] @relation("EventCreator")
-  sentMessages     Message[] @relation("MessageSender")     // Messages sent by user
-  receivedMessages Message[] @relation("MessageReceiver")   // Messages received by user
+model Event {
+  id                    Int        @id @default(autoincrement())
+  title                 String
+  slug                  String     @unique
+  shortDescription      String
+  fullDescription       String
+  date                  DateTime?
+  location              String?
+  isActive              Boolean    @default(true)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime
+  juniorId              Int
+  createdById           String
+  featuredMediaData     Bytes?
+  featuredMediaMimeType String?
+  logoData              Bytes?
+  logoMimeType          String?
+  User                  User       @relation(fields: [createdById], references: [id])
+  Junior                Junior     @relation(fields: [juniorId], references: [id])
+  Feedback              Feedback[]
 }
 
-
-
-
-
-model News {
+model Feedback {
   id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  author    String?
-  image     String?
+  contenu   String
+  note      Int
+  projectId Int?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime
+  eventId   Int?
+  Event     Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  Project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model FicheJE {
+  nomJE       String
+  description String
+  contact     String
+  juniorId    Int      @unique
+  createdAt   DateTime @default(now())
+  Junior      Junior   @relation(fields: [juniorId], references: [id])
 }
 
 model Junior {
@@ -46,103 +65,65 @@ model Junior {
   role          String
   city          String
   contact_email String?
-
-  events        Event[]
-  ficheJE       FicheJE?
-  activites     Activite[]
-  projects      Project[]
+  Activite      Activite[]
+  Event         Event[]
+  FicheJE       FicheJE?
+  Project       Project[]
 }
 
-model FicheJE {
-  nomJE       String
-  description String
-  contact     String
-  juniorId    Int      @unique
-  junior      Junior   @relation(fields: [juniorId], references: [id])
-  createdAt   DateTime @default(now())
+model Message {
+  id                            Int      @id @default(autoincrement())
+  content                       String
+  isRead                        Boolean  @default(false)
+  createdAt                     DateTime @default(now())
+  senderId                      String
+  receiverId                    String
+  User_Message_receiverIdToUser User     @relation("Message_receiverIdToUser", fields: [receiverId], references: [id], onDelete: Cascade)
+  User_Message_senderIdToUser   User     @relation("Message_senderIdToUser", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([receiverId])
+  @@index([senderId])
 }
 
-model Event {
-  id               Int      @id @default(autoincrement())
-  title            String
-  slug             String   @unique
-  shortDescription String
-  fullDescription  String   @db.Text
-  logoData         Bytes?
-  logoMimeType     String?
-  featuredMediaData Bytes?
-  featuredMediaMimeType String?
-  date             DateTime?
-  location         String?
-  isActive         Boolean  @default(true)
-  updatedAt        DateTime @updatedAt
-
-  juniorId    Int
-  junior      Junior @relation(fields: [juniorId], references: [id])
-
-  createdById String
-  createdBy   User   @relation("EventCreator", fields: [createdById], references: [id])
-
-  feedbacks   Feedback[]
+model News {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  author    String?
 }
 
 model Project {
   id          Int        @id @default(autoincrement())
   titre       String
-  description String     @db.Text
+  description String
   statut      String     @default("EN_ATTENTE")
   dateDebut   DateTime?
   dateFin     DateTime
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
+  updatedAt   DateTime
+  juniorId    Int
   revenu      Float?
-  juniorId    Int
-  junior      Junior     @relation(fields: [juniorId], references: [id])
-  
-  feedbacks   Feedback[]
+  Feedback    Feedback[]
+  Junior      Junior     @relation(fields: [juniorId], references: [id])
 }
 
-model Feedback {
-  id        Int      @id @default(autoincrement())
-  contenu   String   @db.Text
-  note      Int
-
-  projectId Int?
-  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  eventId   Int?
-  event     Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
-
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model User {
+  id                               String    @id
+  email                            String    @unique
+  name                             String
+  createdAt                        DateTime  @default(now())
+  password                         String
+  role                             Role      @default(RJE)
+  Event                            Event[]
+  Message_Message_receiverIdToUser Message[] @relation("Message_receiverIdToUser")
+  Message_Message_senderIdToUser   Message[] @relation("Message_senderIdToUser")
 }
 
-model Activite {
-  id          Int      @id @default(autoincrement())
-  nom         String
-  description String
-
-  juniorId    Int
-  junior      Junior @relation(fields: [juniorId], references: [id])
+enum Role {
+  RJE
+  ADMIN
 }
-
-model Message {
-  id         Int      @id @default(autoincrement())
-  content    String   @db.Text
-  isRead     Boolean  @default(false)
-  createdAt  DateTime @default(now())
-
-  senderId   String
-  sender     User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
-
-  receiverId String
-  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
-
-  @@index([senderId])
-  @@index([receiverId])
-  @@index([createdAt])
-}
-
-
