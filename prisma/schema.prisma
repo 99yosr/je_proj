@@ -32,8 +32,8 @@ model Event {
   featuredMediaMimeType String?
   logoData              Bytes?
   logoMimeType          String?
-  User                  User       @relation(fields: [createdById], references: [id])
-  Junior                Junior     @relation(fields: [juniorId], references: [id])
+  user                  User       @relation(fields: [createdById], references: [id])
+  junior                Junior     @relation(fields: [juniorId], references: [id])
   Feedback              Feedback[]
 
   @@index([updatedAt])
