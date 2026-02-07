@@ -1,40 +1,134 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
-import { requireAuth } from "@/lib/auth";
-
+import { requireAuth } from '../../../lib/auth';
 
 export async function GET(req: NextRequest) {
+    const startTime = Date.now();
     try {
+        const { searchParams } = new URL(req.url);
+        const search = searchParams.get('search');
+        const juniorId = searchParams.get('juniorId');
+        const isActive = searchParams.get('isActive');
+        const dateRange = searchParams.get('dateRange'); // 'upcoming', 'past', or 'all'
+
+        const where: any = {};
+
+        if (search) {
+            where.OR = [
+                { title: { contains: search, mode: 'insensitive' } },
+                { shortDescription: { contains: search, mode: 'insensitive' } },
+            ];
+        }
+
+        if (juniorId) {
+            where.juniorId = parseInt(juniorId);
+        }
+
+        if (isActive === 'true') {
+            where.isActive = true;
+        } else if (isActive === 'false') {
+            where.isActive = false;
+        }
+
+        const now = new Date();
+        if (dateRange === 'upcoming') {
+            where.date = { gte: now };
+        } else if (dateRange === 'past') {
+            where.date = { lt: now };
+        }
+
         const events = await prisma.event.findMany({
-            orderBy: { createdAt: 'desc' },
+            where,
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                shortDescription: true,
+                fullDescription: true,
+                date: true,
+                location: true,
+                isActive: true,
+                updatedAt: true,
+                juniorId: true,
+                createdById: true,
+                // Only select MIME types to check if images exist (not the binary data!)
+                logoMimeType: true,
+                featuredMediaMimeType: true,
+                user: { select: { name: true, email: true } },
+                junior: { select: { name: true } },
+            },
+            orderBy: { updatedAt: 'desc' },
         });
-        return NextResponse.json(events);
+
+        // Transform events to include proper URLs for images
+        const transformedEvents = events.map((event: any) => ({
+            ...event,
+            // Rename relation fields to expected frontend names
+            createdBy: event.user,
+            junior: event.junior,
+            user: undefined,
+            Junior: undefined,
+            logoUrl: event.logoMimeType ? `/api/events/${event.id}/image?type=logo` : null,
+            featuredMediaUrl: event.featuredMediaMimeType ? `/api/events/${event.id}/image?type=featured` : null,
+            // Remove MIME types from response (not needed by frontend)
+            logoMimeType: undefined,
+            featuredMediaMimeType: undefined,
+        }));
+
+        const duration = Date.now() - startTime;
+        console.log(`[API] GET /api/events took ${duration}ms`);
+
+        return NextResponse.json(transformedEvents, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=5'
+            }
+        });
     } catch (error) {
+        console.error("Failed to fetch events:", error);
         return NextResponse.json({ error: "Failed to fetch events" }, { status: 500 });
     }
 }
 
 export async function POST(req: NextRequest) {
-    const { error, user } = await requireAuth(req);
-    if (error) return error;
     try {
-        const body = await req.json();
-        const {
-            title,
-            slug,
-            shortDescription,
-            fullDescription,
-            logoUrl,
-            featuredMediaUrl,
-            date,
-            location,
-            isActive,
-            juniorId,
-            createdById
-        } = body;
+        // Require authentication and get user from session
+        const authResult = await requireAuth(req);
+        if (authResult.error) {
+            return authResult.error;
+        }
+        const user = authResult.user!;
 
-        if (!title || !slug || !shortDescription || !fullDescription || !juniorId || !createdById) {
+        const formData = await req.formData();
+
+        const title = formData.get('title') as string;
+        const slug = formData.get('slug') as string;
+        const shortDescription = formData.get('shortDescription') as string;
+        const fullDescription = formData.get('fullDescription') as string;
+        const dateStr = formData.get('date') as string;
+        const location = formData.get('location') as string;
+        const juniorId = formData.get('juniorId') as string;
+
+        const logoFile = formData.get('logoFile') as File | null;
+        const featuredMediaFile = formData.get('featuredMediaFile') as File | null;
+
+        if (!title || !slug || !shortDescription || !fullDescription || !juniorId) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        }
+
+        // Process Logo
+        let logoData: Buffer | null = null;
+        let logoMimeType: string | null = null;
+        if (logoFile && logoFile.size > 0) {
+            logoData = Buffer.from(await logoFile.arrayBuffer());
+            logoMimeType = logoFile.type;
+        }
+
+        // Process Featured Media
+        let featuredMediaData: Buffer | null = null;
+        let featuredMediaMimeType: string | null = null;
+        if (featuredMediaFile && featuredMediaFile.size > 0) {
+            featuredMediaData = Buffer.from(await featuredMediaFile.arrayBuffer());
+            featuredMediaMimeType = featuredMediaFile.type;
         }
 
         const event = await prisma.event.create({
@@ -43,19 +137,27 @@ export async function POST(req: NextRequest) {
                 slug,
                 shortDescription,
                 fullDescription,
-                logoUrl: logoUrl || null,
-                featuredMediaUrl: featuredMediaUrl || null,
-                date: date ? new Date(date) : null,
-                location: location || null,
-                isActive: isActive ?? true,
-                juniorId: Number(juniorId),
-                createdById: createdById,
-            },
+                date: dateStr ? new Date(dateStr) : null,
+                location,
+                juniorId: parseInt(juniorId),
+                createdById: user.id, // Use authenticated user's ID from session
+                logoData,
+                logoMimeType,
+                featuredMediaData,
+                featuredMediaMimeType,
+                isActive: true,
+            } as any,
         });
-        return NextResponse.json(event);
+
+        return NextResponse.json({
+            message: "Event created",
+            id: event.id
+        }, { status: 201 });
+
     } catch (error: any) {
+        console.error("Error creating event:", error);
         if (error.code === 'P2002') {
-            return NextResponse.json({ error: "Slug already exists" }, { status: 400 });
+            return NextResponse.json({ error: "Slug already exists" }, { status: 409 });
         }
         return NextResponse.json({ error: "Failed to create event" }, { status: 500 });
     }
