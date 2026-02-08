@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
+import ActivitySortControls, { useSortActivity } from '../components/ActivitySort'
+import { useSearch } from '../components/SearchContext'
 
 type Activity = {
   id: number
@@ -39,6 +41,22 @@ export default function ActivityPage() {
     juniorId: ''
   })
   const [submitting, setSubmitting] = useState(false)
+  const { searchQuery } = useSearch()
+
+  // Filter activities based on search query
+  const filteredActivities = useMemo(() => {
+    if (!searchQuery) return activities
+    
+    const query = searchQuery.toLowerCase()
+    return activities.filter(activity => 
+      activity.nom.toLowerCase().includes(query) ||
+      activity.description.toLowerCase().includes(query) ||
+      activity.junior?.name.toLowerCase().includes(query)
+    )
+  }, [activities, searchQuery])
+
+  // Apply sorting to filtered activities
+  const { sortedData, sortColumn, sortDirection, handleSort } = useSortActivity(filteredActivities)
 
   useEffect(() => {
     fetchActivities()
@@ -228,22 +246,23 @@ export default function ActivityPage() {
             <table className="activity-table">
               <thead className="table-head">
                 <tr>
-                  <th className="table-header">Activity Name</th>
-                  <th className="table-header">Description</th>
-                  <th className="table-header">Junior Enterprise</th>
-                  <th className="table-header table-header-right">Actions</th>
+                  <ActivitySortControls 
+                    currentSort={sortColumn} 
+                    currentDirection={sortDirection} 
+                    onSort={handleSort} 
+                  />
                 </tr>
               </thead>
 
               <tbody>
-                {activities.length === 0 ? (
+                {sortedData.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="empty-state">
                       No activities found
                     </td>
                   </tr>
                 ) : (
-                  activities.map(item => (
+                  sortedData.map(item => (
                     <tr key={item.id} className="table-row">
                       <td className="table-cell">
                         <div className="activity-info">
@@ -294,7 +313,8 @@ export default function ActivityPage() {
           {/* Footer */}
           <div className="table-footer">
             <p className="footer-text">
-              Total activities: <span className="footer-count">{activities.length}</span>
+              Total activities: <span className="footer-count">{sortedData.length}</span>
+              {searchQuery && <span className="text-gray-400"> (filtered from {activities.length})</span>}
             </p>
           </div>
         </div>
