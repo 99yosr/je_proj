@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
+import JuniorsSortControls, { useSortJuniors } from '../components/JuniorsSort'
+import { useSearch } from '../components/SearchContext'
 
 type Junior = {
   id: number
@@ -33,6 +35,23 @@ export default function JuniorsPage() {
     contact_email: ''
   })
   const [submitting, setSubmitting] = useState(false)
+  const { searchQuery } = useSearch()
+
+  // Filter juniors based on search query
+  const filteredJuniors = useMemo(() => {
+    if (!searchQuery) return juniors
+    
+    const query = searchQuery.toLowerCase()
+    return juniors.filter(junior => 
+      junior.name.toLowerCase().includes(query) ||
+      junior.role.toLowerCase().includes(query) ||
+      junior.city.toLowerCase().includes(query) ||
+      (junior.contact_email && junior.contact_email.toLowerCase().includes(query))
+    )
+  }, [juniors, searchQuery])
+
+  // Apply sorting to filtered juniors
+  const { sortedData, sortColumn, sortDirection, handleSort } = useSortJuniors(filteredJuniors)
 
   useEffect(() => {
     fetchJuniors()
@@ -200,24 +219,23 @@ export default function JuniorsPage() {
             <table className="juniors-table">
               <thead className="table-head">
                 <tr>
-                  <th className="table-header">Name</th>
-                  <th className="table-header">Role</th>
-                  <th className="table-header">City</th>
-                  <th className="table-header">Contact</th>
-                  <th className="table-header">Date Added</th>
-                  <th className="table-header table-header-right">Actions</th>
+                  <JuniorsSortControls 
+                    currentSort={sortColumn} 
+                    currentDirection={sortDirection} 
+                    onSort={handleSort} 
+                  />
                 </tr>
               </thead>
 
               <tbody>
-                {juniors.length === 0 ? (
+                {sortedData.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="empty-state">
                       No junior enterprises found
                     </td>
                   </tr>
                 ) : (
-                  juniors.map(item => (
+                  sortedData.map(item => (
                     <tr key={item.id} className="table-row">
                       <td className="table-cell">
                         <div className="junior-info">
@@ -279,7 +297,8 @@ export default function JuniorsPage() {
           {/* Footer */}
           <div className="table-footer">
             <p className="footer-text">
-              Total juniors: <span className="footer-count">{juniors.length}</span>
+              Total juniors: <span className="footer-count">{sortedData.length}</span>
+              {searchQuery && <span className="text-gray-400"> (filtered from {juniors.length})</span>}
             </p>
           </div>
         </div>

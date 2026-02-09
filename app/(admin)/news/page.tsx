@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
+import NewsSortControls, { useSortNews } from '../components/NewsSort'
+import { useSearch } from '../components/SearchContext'
 
 type News = {
   id: number
@@ -34,6 +36,22 @@ export default function NewsPage() {
     image: ''
   })
   const [submitting, setSubmitting] = useState(false)
+  const { searchQuery } = useSearch()
+
+  // Filter news based on search query
+  const filteredNews = useMemo(() => {
+    if (!searchQuery) return news
+    
+    const query = searchQuery.toLowerCase()
+    return news.filter(item => 
+      item.title.toLowerCase().includes(query) ||
+      item.content.toLowerCase().includes(query) ||
+      (item.author && item.author.toLowerCase().includes(query))
+    )
+  }, [news, searchQuery])
+
+  // Apply sorting to filtered news
+  const { sortedData, sortColumn, sortDirection, handleSort } = useSortNews(filteredNews)
 
   useEffect(() => {
     fetchNews()
@@ -199,22 +217,23 @@ export default function NewsPage() {
             <table className="news-table">
               <thead className="table-head">
                 <tr>
-                  <th className="table-header">Title</th>
-                  <th className="table-header">Author</th>
-                  <th className="table-header">Date</th>
-                  <th className="table-header table-header-right">Actions</th>
+                  <NewsSortControls 
+                    currentSort={sortColumn} 
+                    currentDirection={sortDirection} 
+                    onSort={handleSort} 
+                  />
                 </tr>
               </thead>
 
               <tbody>
-                {news.length === 0 ? (
+                {sortedData.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="empty-state">
                       No news articles found
                     </td>
                   </tr>
                 ) : (
-                  news.map(item => (
+                  sortedData.map(item => (
                     <tr key={item.id} className="table-row">
                       <td className="table-cell">
                         <div className="news-info">
@@ -273,7 +292,8 @@ export default function NewsPage() {
           {/* Footer */}
           <div className="table-footer">
             <p className="footer-text">
-              Total articles: <span className="footer-count">{news.length}</span>
+              Total articles: <span className="footer-count">{sortedData.length}</span>
+              {searchQuery && <span className="text-gray-400"> (filtered from {news.length})</span>}
             </p>
           </div>
         </div>

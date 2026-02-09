@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import './style.css'
+import EventsSortControls, { useSortEvents } from '../components/EventsSort'
+import EventsSortControls, { useSortEvents } from '../components/EventsSort'
 
 type Event = {
     id: number
@@ -111,6 +113,9 @@ export default function EventsPage() {
         setIsActive('all')
         setDateRange('all')
     }
+
+    // Apply sorting to events
+    const { sortedData, sortColumn, sortDirection, handleSort } = useSortEvents(events)
 
     async function handleDelete(id: number) {
         if (!confirm('Are you sure you want to delete this event?')) return
@@ -245,26 +250,23 @@ export default function EventsPage() {
                             <table className="events-table">
                                 <thead className="table-head">
                                     <tr>
-                                        <th className="table-header">Title</th>
-                                        <th className="table-header">Slug</th>
-                                        <th className="table-header">Media</th>
-                                        <th className="table-header">Junior</th>
-                                        <th className="table-header">Created By</th>
-                                        <th className="table-header">Last Updated</th>
-                                        <th className="table-header">Status</th>
-                                        <th className="table-header table-header-right">Actions</th>
+                                        <EventsSortControls 
+                                            currentSort={sortColumn} 
+                                            currentDirection={sortDirection} 
+                                            onSort={handleSort} 
+                                        />
                                     </tr>
                                 </thead>
 
                                 <tbody>
-                                    {events.length === 0 ? (
+                                    {sortedData.length === 0 ? (
                                         <tr>
                                             <td colSpan={8} className="empty-state">
                                                 No events found matching your criteria
                                             </td>
                                         </tr>
                                     ) : (
-                                        events.map(event => (
+                                        sortedData.map(event => (
                                             <tr key={event.id} className="table-row">
                                                 <td className="table-cell">
                                                     <div className="event-info">
@@ -347,7 +349,7 @@ export default function EventsPage() {
                     {!loading && (
                         <div className="table-footer">
                             <p className="footer-text">
-                                Found <span className="footer-count">{events.length}</span> events
+                                Found <span className="footer-count">{sortedData.length}</span> events
                             </p>
                         </div>
                     )}

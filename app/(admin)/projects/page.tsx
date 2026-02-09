@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
+import ProjectsSortControls, { useSortProjects } from '../components/ProjectsSort'
+import { useSearch } from '../components/SearchContext'
 
 type Project = {
   id: number
@@ -53,6 +55,23 @@ export default function ProjectsPage() {
     juniorId: ''
   })
   const [submitting, setSubmitting] = useState(false)
+  const { searchQuery } = useSearch()
+
+  // Filter projects based on search query
+  const filteredProjects = useMemo(() => {
+    if (!searchQuery) return projects
+    
+    const query = searchQuery.toLowerCase()
+    return projects.filter(project => 
+      project.titre.toLowerCase().includes(query) ||
+      project.description.toLowerCase().includes(query) ||
+      project.statut.toLowerCase().includes(query) ||
+      (project.junior?.name && project.junior.name.toLowerCase().includes(query))
+    )
+  }, [projects, searchQuery])
+
+  // Apply sorting to filtered projects
+  const { sortedData, sortColumn, sortDirection, handleSort } = useSortProjects(filteredProjects)
 
   useEffect(() => {
     fetchProjects()
@@ -296,23 +315,23 @@ export default function ProjectsPage() {
             <table className="projects-table">
               <thead className="table-head">
                 <tr>
-                  <th className="table-header">Title</th>
-                  <th className="table-header">Junior</th>
-                  <th className="table-header">Status</th>
-                  <th className="table-header">End Date</th>
-                  <th className="table-header table-header-right">Actions</th>
+                  <ProjectsSortControls 
+                    currentSort={sortColumn} 
+                    currentDirection={sortDirection} 
+                    onSort={handleSort} 
+                  />
                 </tr>
               </thead>
 
               <tbody>
-                {projects.length === 0 ? (
+                {sortedData.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="empty-state">
                       No projects found
                     </td>
                   </tr>
                 ) : (
-                  projects.map(item => (
+                  sortedData.map(item => (
                     <tr key={item.id} className="table-row">
                       <td className="table-cell">
                         <div className="project-info">
@@ -372,7 +391,8 @@ export default function ProjectsPage() {
           {/* Footer */}
           <div className="table-footer">
             <p className="footer-text">
-              Total projects: <span className="footer-count">{projects.length}</span>
+              Total projects: <span className="footer-count">{sortedData.length}</span>
+              {searchQuery && <span className="text-gray-400"> (filtered from {projects.length})</span>}
             </p>
           </div>
         </div>

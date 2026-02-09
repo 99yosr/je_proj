@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Edit, Trash2, Plus, X } from 'lucide-react'
 import './style.css'
+import UsersSortControls, { useSortUsers } from '../components/UsersSort'
+import { useSearch } from '../components/SearchContext'
 
 type User = {
   id: string
@@ -25,6 +27,22 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [formData, setFormData] = useState<UserFormData>({ name: '', email: '', role: 'USER' })
   const [submitting, setSubmitting] = useState(false)
+  const { searchQuery } = useSearch()
+
+  // Filter users based on search query
+  const filteredUsers = useMemo(() => {
+    if (!searchQuery) return users
+    
+    const query = searchQuery.toLowerCase()
+    return users.filter(user => 
+      (user.name && user.name.toLowerCase().includes(query)) ||
+      user.email.toLowerCase().includes(query) ||
+      (user.role && user.role.toLowerCase().includes(query))
+    )
+  }, [users, searchQuery])
+
+  // Apply sorting to filtered users
+  const { sortedData, sortColumn, sortDirection, handleSort } = useSortUsers(filteredUsers)
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -136,19 +154,20 @@ export default function UsersPage() {
             <table className="users-table">
               <thead className="table-head">
                 <tr>
-                  <th className="table-header">Name</th>
-                  <th className="table-header">Email</th>
-                  <th className="table-header">Role</th>
-                  <th className="table-header table-header-right">Actions</th>
+                  <UsersSortControls 
+                    currentSort={sortColumn} 
+                    currentDirection={sortDirection} 
+                    onSort={handleSort} 
+                  />
                 </tr>
               </thead>
               <tbody>
-                {users.length === 0 ? (
+                {sortedData.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="empty-state">No users found</td>
                   </tr>
                 ) : (
-                  users.map(user => (
+                  sortedData.map(user => (
                     <tr key={user.id} className="table-row">
                       <td className="table-cell">
                         <div className="user-info">
@@ -182,7 +201,8 @@ export default function UsersPage() {
 
           <div className="table-footer">
             <p className="footer-text">
-              Total users: <span className="footer-count">{users.length}</span>
+              Total users: <span className="footer-count">{sortedData.length}</span>
+              {searchQuery && <span className="text-gray-400"> (filtered from {users.length})</span>}
             </p>
           </div>
         </div>
