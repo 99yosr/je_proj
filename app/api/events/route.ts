@@ -3,42 +3,8 @@ import prisma from '../../../lib/prisma';
 import { requireAuth } from '../../../lib/auth';
 
 export async function GET(req: NextRequest) {
-    const startTime = Date.now();
     try {
-        const { searchParams } = new URL(req.url);
-        const search = searchParams.get('search');
-        const juniorId = searchParams.get('juniorId');
-        const isActive = searchParams.get('isActive');
-        const dateRange = searchParams.get('dateRange'); // 'upcoming', 'past', or 'all'
-
-        const where: any = {};
-
-        if (search) {
-            where.OR = [
-                { title: { contains: search, mode: 'insensitive' } },
-                { shortDescription: { contains: search, mode: 'insensitive' } },
-            ];
-        }
-
-        if (juniorId) {
-            where.juniorId = parseInt(juniorId);
-        }
-
-        if (isActive === 'true') {
-            where.isActive = true;
-        } else if (isActive === 'false') {
-            where.isActive = false;
-        }
-
-        const now = new Date();
-        if (dateRange === 'upcoming') {
-            where.date = { gte: now };
-        } else if (dateRange === 'past') {
-            where.date = { lt: now };
-        }
-
         const events = await prisma.event.findMany({
-            where,
             select: {
                 id: true,
                 title: true,
@@ -54,8 +20,8 @@ export async function GET(req: NextRequest) {
                 // Only select MIME types to check if images exist (not the binary data!)
                 logoMimeType: true,
                 featuredMediaMimeType: true,
-                user: { select: { name: true, email: true } },
-                junior: { select: { name: true } },
+                User: { select: { name: true, email: true } },
+                Junior: { select: { name: true } },
             },
             orderBy: { updatedAt: 'desc' },
         });
@@ -64,9 +30,9 @@ export async function GET(req: NextRequest) {
         const transformedEvents = events.map((event: any) => ({
             ...event,
             // Rename relation fields to expected frontend names
-            createdBy: event.user,
-            junior: event.junior,
-            user: undefined,
+            createdBy: event.User,
+            junior: event.Junior,
+            User: undefined,
             Junior: undefined,
             logoUrl: event.logoMimeType ? `/api/events/${event.id}/image?type=logo` : null,
             featuredMediaUrl: event.featuredMediaMimeType ? `/api/events/${event.id}/image?type=featured` : null,
@@ -75,14 +41,7 @@ export async function GET(req: NextRequest) {
             featuredMediaMimeType: undefined,
         }));
 
-        const duration = Date.now() - startTime;
-        console.log(`[API] GET /api/events took ${duration}ms`);
-
-        return NextResponse.json(transformedEvents, {
-            headers: {
-                'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=5'
-            }
-        });
+        return NextResponse.json(transformedEvents);
     } catch (error) {
         console.error("Failed to fetch events:", error);
         return NextResponse.json({ error: "Failed to fetch events" }, { status: 500 });
