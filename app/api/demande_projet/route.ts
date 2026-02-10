@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
         dateFin: new Date(dateFin),
         statut: "EN_ATTENTE",
 
-        junior: {
+        Junior: {
           connect: { id: Number(juniorId) },
         },
       },

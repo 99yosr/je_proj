@@ -10,19 +10,19 @@ export async function GET(req: NextRequest) {
         // 1. Fetch data for breakdown - this covers most of what we need
         const [projectBreakdown, eventBreakdown, globalStats] = await Promise.all([
             prisma.project.findMany({
-                where: { feedbacks: { some: {} } },
+                where: { Feedback: { some: {} } },
                 select: {
                     id: true,
                     titre: true,
-                    feedbacks: { select: { note: true } }
+                    Feedback: { select: { note: true } }
                 }
             }),
             prisma.event.findMany({
-                where: { feedbacks: { some: {} } },
+                where: { Feedback: { some: {} } },
                 select: {
                     id: true,
                     title: true,
-                    feedbacks: { select: { note: true } }
+                    Feedback: { select: { note: true } }
                 }
             }),
             prisma.feedback.aggregate({
@@ -35,8 +35,8 @@ export async function GET(req: NextRequest) {
         let totalProjectNotes = 0;
         let totalProjectCount = 0;
         const projectList = projectBreakdown.map(p => {
-            const count = p.feedbacks.length;
-            const sum = p.feedbacks.reduce((s, f) => s + f.note, 0);
+            const count = p.Feedback.length;
+            const sum = p.Feedback.reduce((s, f) => s + f.note, 0);
             totalProjectNotes += sum;
             totalProjectCount += count;
             return {
@@ -51,8 +51,8 @@ export async function GET(req: NextRequest) {
         let totalEventNotes = 0;
         let totalEventCount = 0;
         const eventList = eventBreakdown.map(e => {
-            const count = e.feedbacks.length;
-            const sum = e.feedbacks.reduce((s, f) => s + f.note, 0);
+            const count = e.Feedback.length;
+            const sum = e.Feedback.reduce((s, f) => s + f.note, 0);
             totalEventNotes += sum;
             totalEventCount += count;
             return {

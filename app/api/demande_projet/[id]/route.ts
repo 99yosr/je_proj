@@ -25,7 +25,7 @@ export async function GET(
     const project = await prisma.project.findUnique({
       where: { id },
       include: {
-        feedbacks: true,
+        Feedback: true,
       },
     });
 
@@ -70,12 +70,12 @@ export async function PATCH(
     const project = await prisma.project.update({
       where: { id },
       data: { statut },
-      include: { junior: true },
+      include: { Junior: true },
     });
 
     // Si la demande est refusée, on envoie l'email au Visiteur (Junior)
-    if (statut === "REFUSE" && project.junior?.contact_email) {
-      await sendRefusalEmail(project.junior.contact_email, project.titre);
+    if (statut === "REFUSE" && project.Junior?.contact_email) {
+      await sendRefusalEmail(project.Junior.contact_email, project.titre);
     }
 
     return NextResponse.json(

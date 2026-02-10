@@ -23,7 +23,7 @@ export async function GET(
     const project = await prisma.project.findUnique({
       where: { id },
       include: {
-        feedbacks: true,
+        Feedback: true,
       },
     });
 
@@ -88,8 +88,8 @@ export async function PUT(
         ...(dateFin && { dateFin: new Date(dateFin) }),
       },
       include: {
-        feedbacks: true,
-        junior: true, // To keep the same junior name after updates.
+        Feedback: true,
+        Junior: true, // To keep the same junior name after updates.
       },
     });
 

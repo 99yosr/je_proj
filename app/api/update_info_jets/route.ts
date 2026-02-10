@@ -28,7 +28,7 @@ export async function PUT(req: NextRequest) {
         contact,
       },
       include: {
-        junior: true,
+        Junior: true,
       },
     });
 
