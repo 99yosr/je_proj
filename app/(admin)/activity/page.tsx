@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, Search } from 'lucide-react'
 import './style.css'
 import ActivitySortControls, { useSortActivity } from '../components/ActivitySort'
 import { useSearch } from '../components/SearchContext'
+import Filter from '../../components/Filter' // Import du filtre
 
 type Activity = {
   id: number
@@ -26,6 +27,8 @@ type ActivityFormData = {
 type Junior = {
   id: number
   name: string
+  role: string
+  city: string
 }
 
 export default function ActivityPage() {
@@ -41,19 +44,37 @@ export default function ActivityPage() {
     juniorId: ''
   })
   const [submitting, setSubmitting] = useState(false)
-  const { searchQuery } = useSearch()
 
-  // Filter activities based on search query
+  // États pour le filtrage
+  const [selectedJuniorFilter, setSelectedJuniorFilter] = useState<number | null>(null)
+  const [localSearchQuery, setLocalSearchQuery] = useState('')
+
+  const { searchQuery, setSearchQuery } = useSearch()
+
+  // Combiner la recherche locale et globale
+  const combinedSearchQuery = localSearchQuery || searchQuery
+
+  // Filter activities based on search query and junior filter
   const filteredActivities = useMemo(() => {
-    if (!searchQuery) return activities
-    
-    const query = searchQuery.toLowerCase()
-    return activities.filter(activity => 
-      activity.nom.toLowerCase().includes(query) ||
-      activity.description.toLowerCase().includes(query) ||
-      activity.junior?.name.toLowerCase().includes(query)
-    )
-  }, [activities, searchQuery])
+    let data = activities
+
+    // Filtre par junior sélectionné
+    if (selectedJuniorFilter) {
+      data = data.filter(activity => activity.juniorId === selectedJuniorFilter)
+    }
+
+    // Filtre par search query
+    if (combinedSearchQuery) {
+      const query = combinedSearchQuery.toLowerCase()
+      data = data.filter(activity =>
+        activity.nom.toLowerCase().includes(query) ||
+        activity.description.toLowerCase().includes(query) ||
+        activity.junior?.name.toLowerCase().includes(query)
+      )
+    }
+
+    return data
+  }, [activities, combinedSearchQuery, selectedJuniorFilter])
 
   // Apply sorting to filtered activities
   const { sortedData, sortColumn, sortDirection, handleSort } = useSortActivity(filteredActivities)
@@ -168,7 +189,7 @@ export default function ActivityPage() {
             ...updatedActivity,
             junior: junior || { id: updatedActivity.juniorId, name: 'Unknown' }
           }
-          setActivities(prev => prev.map(item => 
+          setActivities(prev => prev.map(item =>
             item.id === activityWithJunior.id ? activityWithJunior : item
           ))
           handleCloseModal()
@@ -208,6 +229,39 @@ export default function ActivityPage() {
     }
   }
 
+  // Gestionnaires pour les filtres
+  const handleJuniorSelect = (juniorId: number | null) => {
+    setSelectedJuniorFilter(juniorId)
+  }
+
+  const handleSearchChange = (query: string) => {
+    setLocalSearchQuery(query)
+    // Optionnel: mettre à jour aussi le contexte global
+    setSearchQuery(query)
+  }
+
+  const handleResetFilters = () => {
+    setSelectedJuniorFilter(null)
+    setLocalSearchQuery('')
+    setSearchQuery('')
+  }
+
+  const handleClearSearch = () => {
+    setLocalSearchQuery('')
+    setSearchQuery('')
+  }
+
+  // Préparer les données pour le filtre
+  const juniorItemsForFilter = juniors.map(j => ({
+    id: j.id,
+    name: j.name,
+    userType: j.role,
+    city: j.city
+  }))
+
+  // Vérifier si des filtres sont actifs
+  const isAnyFilterActive = selectedJuniorFilter || combinedSearchQuery
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -240,16 +294,62 @@ export default function ActivityPage() {
           </p>
         </div>
 
+        {/* Section de filtrage */}
+        <div className="filters-section">
+          <div className="filters-row">
+            {/* Filtre de recherche */}
+            <div className="search-filter-container">
+              <div className="filter-label">
+                <Search size={16} />
+                <span>SEARCH</span>
+              </div>
+              <div className="search-input-wrapper">
+
+                {combinedSearchQuery && (
+                  <button
+                    className="clear-search-button"
+                    onClick={handleClearSearch}
+                    title="Clear search"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Filtre par junior */}
+            <Filter
+              title="JUNIOR"
+              items={juniorItemsForFilter}
+              onSelect={handleJuniorSelect}
+              selectedId={selectedJuniorFilter}
+              showClearButton={true}
+            />
+          </div>
+
+          {/* Bouton Reset Filters */}
+          {isAnyFilterActive && (
+            <div className="filter-actions">
+              <button
+                className="reset-filters-button"
+                onClick={handleResetFilters}
+              >
+                Reset Filters
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Table Card */}
         <div className="table-card">
           <div className="table-wrapper">
             <table className="activity-table">
               <thead className="table-head">
                 <tr>
-                  <ActivitySortControls 
-                    currentSort={sortColumn} 
-                    currentDirection={sortDirection} 
-                    onSort={handleSort} 
+                  <ActivitySortControls
+                    currentSort={sortColumn}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
                   />
                 </tr>
               </thead>
@@ -258,7 +358,10 @@ export default function ActivityPage() {
                 {sortedData.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="empty-state">
-                      No activities found
+                      {isAnyFilterActive
+                        ? 'No activities match your filters'
+                        : 'No activities found'
+                      }
                     </td>
                   </tr>
                 ) : (
@@ -288,14 +391,14 @@ export default function ActivityPage() {
                       </td>
 
                       <td className="table-cell actions-cell">
-                        <button 
+                        <button
                           className="btn-edit"
                           onClick={() => handleOpenModal(item)}
                           title="Edit"
                         >
                           <Pencil size={18} />
                         </button>
-                        <button 
+                        <button
                           className="btn-delete"
                           onClick={() => handleDelete(item.id)}
                           title="Delete"
@@ -314,24 +417,34 @@ export default function ActivityPage() {
           <div className="table-footer">
             <p className="footer-text">
               Total activities: <span className="footer-count">{sortedData.length}</span>
-              {searchQuery && <span className="text-gray-400"> (filtered from {activities.length})</span>}
+              {isAnyFilterActive && (
+                <span className="filter-indicator">
+                  (filtered from {activities.length})
+                </span>
+              )}
+              {isAnyFilterActive && (
+                <span className="filter-active-badge">
+                  <span className="filter-dot"></span>
+                  Filters applied
+                </span>
+              )}
             </p>
           </div>
         </div>
       </div>
 
       {/* Floating Add Button */}
-      <button 
+      <button
         className="floating-add-button"
         onClick={() => handleOpenModal()}
         title="Add new activity"
       >
-        <svg 
-          width="24" 
-          height="24" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
           strokeWidth="2"
         >
           <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -347,16 +460,16 @@ export default function ActivityPage() {
               <h2 className="modal-title">
                 {editingActivity ? 'Edit Activity' : 'Add Activity'}
               </h2>
-              <button 
+              <button
                 className="modal-close"
                 onClick={handleCloseModal}
               >
-                <svg 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
                   strokeWidth="2"
                 >
                   <line x1="18" y1="6" x2="6" y2="18"></line>

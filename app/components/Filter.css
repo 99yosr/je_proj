@@ -1,0 +1,343 @@
+.filter-container {
+  position: relative;
+  width: 200px; /* Largeur réduite pour permettre plusieurs filtres côte à côte */
+  margin-bottom: 1rem;
+  display: inline-block; /* Permet l'affichage côte à côte */
+  vertical-align: top; /* Aligne les filtres en haut */
+  margin-right: 1rem; /* Espacement entre les filtres */
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem; /* Padding réduit */
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  min-height: 40px; /* Hauteur minimale fixe */
+}
+
+.filter-header:hover {
+  border-color: #9ca3af;
+}
+
+.filter-title-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.filter-title {
+  font-size: 0.75rem; /* Taille réduite */
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.125rem; /* Marge réduite */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.selected-indicator {
+  display: flex;
+  flex-direction: column; /* Empile le nom et la ville */
+  gap: 0.125rem;
+  font-size: 0.7rem; /* Taille réduite */
+  min-width: 0;
+}
+
+.selected-name {
+  background: #3b82f6;
+  color: white;
+  padding: 0.125rem 0.375rem; /* Padding réduit */
+  border-radius: 0.25rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+  font-size: 0.7rem; /* Taille réduite */
+}
+
+.selected-city {
+  color: #6b7280;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+  font-size: 0.65rem; /* Taille réduite */
+}
+
+.filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem; /* Espacement réduit */
+  flex-shrink: 0;
+}
+
+.clear-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem; /* Taille réduite */
+  height: 1.5rem; /* Taille réduite */
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.clear-button:hover {
+  background: #fecaca;
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem; /* Taille réduite */
+  height: 1.5rem; /* Taille réduite */
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: #4b5563;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-button:hover {
+  background: #e5e7eb;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 250px; /* Largeur légèrement augmentée pour le dropdown */
+  margin-top: 0.5rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+  max-height: 300px; /* Hauteur réduite */
+  overflow-y: auto;
+}
+
+.search-section {
+  padding: 0.5rem; /* Padding réduit */
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.375rem 0.5rem; /* Padding réduit */
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.75rem; /* Taille réduite */
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Grille des items */
+.items-grid {
+  padding: 0.5rem; /* Padding réduit */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.375rem; /* Espacement réduit */
+}
+
+.grid-item {
+  padding: 0.5rem; /* Padding réduit */
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  min-height: 50px; /* Hauteur réduite */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.grid-item:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.grid-item.selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  border-width: 2px;
+}
+
+.item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-name {
+  font-size: 0.75rem; /* Taille réduite */
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-city {
+  font-size: 0.65rem; /* Taille réduite */
+  color: #6b7280;
+  margin-bottom: 0.125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-type {
+  font-size: 0.6rem; /* Taille réduite */
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.selected-checkmark {
+  position: absolute;
+  top: -0.375rem; /* Position ajustée */
+  right: -0.375rem; /* Position ajustée */
+}
+
+.check-circle {
+  width: 1.125rem; /* Taille réduite */
+  height: 1.125rem; /* Taille réduite */
+  background: #10b981;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem; /* Taille réduite */
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  padding: 1rem 0.5rem; /* Padding réduit */
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.75rem; /* Taille réduite */
+}
+
+.filter-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem; /* Padding réduit */
+  border-top: 1px solid #f3f4f6;
+  background: #f9fafb;
+  font-size: 0.65rem; /* Taille réduite */
+}
+
+.total-items {
+  color: #374151;
+  white-space: nowrap;
+}
+
+.filtered-items {
+  color: #3b82f6;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Animation pour l'ouverture du dropdown */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-dropdown {
+  animation: slideDown 0.2s ease-out;
+}
+
+/* Container pour aligner plusieurs filtres côte à côte */
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem; /* Espacement entre les filtres */
+  margin-bottom: 1.5rem;
+  align-items: flex-start;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filter-container {
+    width: 180px; /* Largeur réduite sur tablette */
+    margin-right: 0.75rem;
+  }
+
+  .filter-dropdown {
+    width: 220px;
+  }
+
+  .filters-row {
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .filter-container {
+    width: calc(50% - 0.5rem); /* 2 filtres par ligne */
+    margin-right: 0;
+  }
+
+  .filters-row {
+    gap: 1rem;
+    justify-content: space-between;
+  }
+
+  .filter-dropdown {
+    width: 100%;
+    max-width: none;
+  }
+
+  .items-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Pour une largeur encore plus grande si besoin */
+@media (min-width: 1024px) {
+  .filter-container {
+    width: 220px;
+  }
+
+  .filter-dropdown {
+    width: 280px;
+  }
+}

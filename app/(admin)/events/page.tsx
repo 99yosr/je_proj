@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import './style.css'
 import EventsSortControls, { useSortEvents } from '../components/EventsSort'
-import EventsSortControls, { useSortEvents } from '../components/EventsSort'
 
 type Event = {
     id: number
@@ -28,7 +27,7 @@ export default function EventsPage() {
     const [error, setError] = useState<string | null>(null)
     const [juniors, setJuniors] = useState<any[]>([])
 
-    // Filter states
+
     const [search, setSearch] = useState('')
     const [debouncedSearch, setDebouncedSearch] = useState('')
     const [juniorId, setJuniorId] = useState('')
@@ -250,10 +249,10 @@ export default function EventsPage() {
                             <table className="events-table">
                                 <thead className="table-head">
                                     <tr>
-                                        <EventsSortControls 
-                                            currentSort={sortColumn} 
-                                            currentDirection={sortDirection} 
-                                            onSort={handleSort} 
+                                        <EventsSortControls
+                                            currentSort={sortColumn}
+                                            currentDirection={sortDirection}
+                                            onSort={handleSort}
                                         />
                                     </tr>
                                 </thead>
