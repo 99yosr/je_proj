@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import './style.css'
 import EventsSortControls, { useSortEvents } from '../components/EventsSort'
-import EventsSortControls, { useSortEvents } from '../components/EventsSort'
 
 type Event = {
     id: number
