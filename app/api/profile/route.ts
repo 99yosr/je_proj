@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
             name: true,
             email: true,
             role: true,
+            nbrmembres: true,
             // Exclude password
         }
     });
@@ -33,11 +34,12 @@ export async function PUT(req: NextRequest) {
     if (error || !sessionUser) return error;
 
     try {
-        const { name, email, password } = await req.json();
+        const { name, email, password, nbrmembres } = await req.json();
 
         const updateData: any = {};
         if (name) updateData.name = name;
         if (email) updateData.email = email;
+        if (nbrmembres !== undefined && sessionUser.role === 'RJE') updateData.nbrmembres = Number(nbrmembres);
         if (password) {
             updateData.password = await bcrypt.hash(password, 10);
         }
@@ -53,6 +55,7 @@ export async function PUT(req: NextRequest) {
             email: updatedUser.email,
             name: updatedUser.name,
             role: updatedUser.role,
+            nbrmembres: updatedUser.nbrmembres,
         };
         await session.save();
 
@@ -60,7 +63,8 @@ export async function PUT(req: NextRequest) {
             id: updatedUser.id,
             name: updatedUser.name,
             email: updatedUser.email,
-            role: updatedUser.role
+            role: updatedUser.role,
+            nbrmembres: updatedUser.nbrmembres
         });
     } catch (error) {
         console.error("Error updating profile:", error);

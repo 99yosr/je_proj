@@ -9,6 +9,7 @@ export default function AdminRegisterPage() {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [nbrmembres, setNbrmembres] = useState('')
     const [role, setRole] = useState<'RJE' | 'ADMIN'>('RJE')
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
@@ -30,7 +31,7 @@ export default function AdminRegisterPage() {
             const res = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password, role }),
+                body: JSON.stringify({ name, email, password, role, nbrmembres }),
             })
 
             const data = await res.json()
@@ -43,6 +44,7 @@ export default function AdminRegisterPage() {
             setName('')
             setEmail('')
             setPassword('')
+            setNbrmembres('')
             setRole('RJE')
 
             // Optional: Refresh users list if we were on the same page, or redirect
@@ -106,6 +108,20 @@ export default function AdminRegisterPage() {
                                 <option value="ADMIN">Admin</option>
                             </select>
                         </div>
+
+                        {role === 'RJE' && (
+                            <div className="form-group">
+                                <label className="form-label">Number of Members</label>
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    value={nbrmembres}
+                                    onChange={(e) => setNbrmembres(e.target.value)}
+                                    placeholder="0"
+                                    min="0"
+                                />
+                            </div>
+                        )}
 
                         <div className="form-group">
                             <label className="form-label">Password</label>

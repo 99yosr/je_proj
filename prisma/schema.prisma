@@ -122,6 +122,7 @@ model User {
   createdAt                        DateTime  @default(now())
   password                         String
   role                             Role      @default(RJE)
+  nbrmembres                       Int?      @default(0)
   Event                            Event[]
   Message_Message_receiverIdToUser Message[] @relation("Message_receiverIdToUser")
   Message_Message_senderIdToUser   Message[] @relation("Message_senderIdToUser")

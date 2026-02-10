@@ -9,11 +9,12 @@ type RegisterBody = {
   password: string
   name: string
   role?: 'RJE' | 'ADMIN'
+  nbrmembres?: number
 }
 
 export async function POST(req: NextRequest) {
   const body: RegisterBody = await req.json()
-  const { email, password, name, role } = body
+  const { email, password, name, role, nbrmembres } = body
 
   // Basic validation
   if (!email || !password || !name) {
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
       name,
       role: safeRole,
+      nbrmembres: role === 'RJE' && nbrmembres ? Number(nbrmembres) : null,
     },
   })
 
