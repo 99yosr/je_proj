@@ -1,5 +1,7 @@
 process.env.NODE_ENV = "development";
 process.env.NEXT_TELEMETRY_DISABLED = "1";
+// Prevent multiple instances
+process.env.NODE_OPTIONS = "--max-old-space-size=4096";
 
 import next from "next";
 import { createServer } from "http";
@@ -8,7 +10,11 @@ import cron from "node-cron";
 import prisma from "./lib/prisma.js";
 
 const dev = process.env.NODE_ENV !== "production";
-const app = next({ dev });
+const app = next({ 
+  dev,
+  // Disable turbopack explicitly for Windows compatibility
+  turbo: false,
+});
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
@@ -51,4 +57,21 @@ app.prepare().then(() => {
   server.listen(PORT, () =>
     console.log(`Server running on http://localhost:${PORT}`)
   );
+
+  // Cleanup on exit
+  process.on("SIGTERM", () => {
+    console.log("SIGTERM signal received: closing HTTP server");
+    server.close(() => {
+      console.log("HTTP server closed");
+      process.exit(0);
+    });
+  });
+
+  process.on("SIGINT", () => {
+    console.log("SIGINT signal received: closing HTTP server");
+    server.close(() => {
+      console.log("HTTP server closed");
+      process.exit(0);
+    });
+  });
 });
