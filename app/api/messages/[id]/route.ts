@@ -51,10 +51,10 @@ export async function PATCH(
       where: { id: messageId },
       data: { isRead: true },
       include: {
-        sender: {
+        User_Message_senderIdToUser: {
           select: { id: true, name: true, email: true }
         },
-        receiver: {
+        User_Message_receiverIdToUser: {
           select: { id: true, name: true, email: true }
         }
       }

@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
   try {
     const projects = await prisma.project.findMany({
       include: {
-        feedbacks: true,
-        junior: true,
+        Feedback: true,
+        Junior: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -50,13 +50,13 @@ export async function POST(request: NextRequest) {
         statut: statut || "EN_ATTENTE",
         dateDebut: dateDebut ? new Date(dateDebut) : null,
         dateFin: new Date(dateFin),
-        junior: {
+        Junior: {
           connect: { id: Number(juniorId) },
         },
       },
       include: {
-        feedbacks: true,
-        junior: true,
+        Feedback: true,
+        Junior: true,
       },
     });
 

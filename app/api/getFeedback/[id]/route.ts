@@ -25,7 +25,7 @@ export async function GET(
     const feedback = await prisma.feedback.findUnique({
       where: { id },
       include: {
-        project: true, // inclure les infos du projet lié
+        Project: true, // inclure les infos du projet lié
       },
     });
 

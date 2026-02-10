@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const activite: Prisma.ActiviteCreateInput = {
       nom,
       description,
-      junior: { connect: { id: Number(juniorId) } }
+      Junior: { connect: { id: Number(juniorId) } }
     };
 
     const newActivite = await prisma.activite.create({
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const activites = await prisma.activite.findMany({
-      include: { junior: true } // inclut les infos du junior
+      include: { Junior: true } // inclut les infos du junior
     });
     return NextResponse.json(activites, { status: 200 });
   } catch (error) {
@@ -60,7 +60,7 @@ export async function PUT(req: NextRequest) {
     const data: Prisma.ActiviteUpdateInput = {};
     if (nom !== undefined) data.nom = nom;
     if (description !== undefined) data.description = description;
-    if (juniorId !== undefined) data.junior = { connect: { id: Number(juniorId) } };
+    if (juniorId !== undefined) data.Junior = { connect: { id: Number(juniorId) } };
 
     const updatedActivite = await prisma.activite.update({
       where: { id: Number(id) },

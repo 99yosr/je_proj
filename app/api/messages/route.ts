@@ -29,10 +29,10 @@ export async function GET(request: NextRequest) {
           ]
         },
         include: {
-          sender: {
+          User_Message_senderIdToUser: {
             select: { id: true, name: true, email: true }
           },
-          receiver: {
+          User_Message_receiverIdToUser: {
             select: { id: true, name: true, email: true }
           }
         },
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       messages = await prisma.message.findMany({
         where: { senderId: userId },
         include: {
-          receiver: {
+          User_Message_receiverIdToUser: {
             select: { id: true, name: true, email: true }
           }
         },
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       messages = await prisma.message.findMany({
         where: { receiverId: userId },
         include: {
-          sender: {
+          User_Message_senderIdToUser: {
             select: { id: true, name: true, email: true }
           }
         },
@@ -110,10 +110,10 @@ export async function POST(request: NextRequest) {
         receiverId
       },
       include: {
-        sender: {
+        User_Message_senderIdToUser: {
           select: { id: true, name: true, email: true }
         },
-        receiver: {
+        User_Message_receiverIdToUser: {
           select: { id: true, name: true, email: true }
         }
       }
