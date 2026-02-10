@@ -18,8 +18,8 @@ export default function UsersPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch('/api/users',{
-            credentials: 'include',
+        const res = await fetch('/api/users', {
+          credentials: 'include',
         }
 
         )
@@ -82,10 +82,17 @@ export default function UsersPage() {
       <div className="users-container">
         {/* Header */}
         <div className="users-header">
-          <h1 className="users-title">Users</h1>
-          <p className="users-subtitle">
-            Manage your team members and their account permissions
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h1 className="users-title">Users</h1>
+              <p className="users-subtitle">
+                Manage your team members and their account permissions
+              </p>
+            </div>
+            <a href="/registerAdmin" className="btn-create">
+              Create User
+            </a>
+          </div>
         </div>
 
         {/* Table Card */}
@@ -115,8 +122,8 @@ export default function UsersPage() {
                         <div className="user-info">
                           <div className="user-avatar">
                             <span className="avatar-text">
-                              {user.name?.charAt(0).toUpperCase() ?? 
-                               user.email.charAt(0).toUpperCase()}
+                              {user.name?.charAt(0).toUpperCase() ??
+                                user.email.charAt(0).toUpperCase()}
                             </span>
                           </div>
                           <div>
@@ -132,16 +139,15 @@ export default function UsersPage() {
                       </td>
 
                       <td className="table-cell">
-                        <span className={`role-badge ${
-                          user.role === 'ADMIN' ? 'role-admin' : 'role-user'
-                        }`}>
+                        <span className={`role-badge ${user.role === 'ADMIN' ? 'role-admin' : 'role-user'
+                          }`}>
                           {user.role ?? 'USER'}
                         </span>
                       </td>
 
                       <td className="table-cell actions-cell">
                         <button className="btn-edit">Edit</button>
-                        <button 
+                        <button
                           className="btn-delete"
                           onClick={() => handleDelete(user.id)}
                         >
