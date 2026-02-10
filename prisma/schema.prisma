@@ -73,6 +73,8 @@ model Junior {
   Event         Event[]
   FicheJE       FicheJE?
   Project       Project[]
+
+  user User?
 }
 
 model Message {
@@ -125,6 +127,9 @@ model User {
   Event                            Event[]
   Message_Message_receiverIdToUser Message[] @relation("Message_receiverIdToUser")
   Message_Message_senderIdToUser   Message[] @relation("Message_senderIdToUser")
+
+  junior   Junior?   @relation(fields: [juniorId], references: [id])
+  juniorId Int?      @unique
 }
 
 enum Role {

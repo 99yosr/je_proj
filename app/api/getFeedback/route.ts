@@ -1,101 +1,111 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireRole  } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
-  const { error, user } = await requireRole(req, ['RJE']);
-  if (error) return error;
   try {
-    const feedbacks = await prisma.feedback.findMany({
-      include: {
-        project: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+    // 1️⃣ Get logged-in user session
+    const { session } = await getSession(req);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = session.user.id;
+
+    // 2️⃣ Find the junior linked to this user
+    const userWithJunior = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { juniorId: true },
     });
 
-    return NextResponse.json(feedbacks, { status: 200 });
+    if (!userWithJunior?.juniorId) {
+      return NextResponse.json({ error: "No junior linked to this user" }, { status: 404 });
+    }
+    const juniorId = userWithJunior.juniorId;
+
+    // 3️⃣ Fetch Projects & Events with feedback for this junior
+    const [projects, events] = await Promise.all([
+      prisma.project.findMany({
+        where: { juniorId, Feedback: { some: {} } },
+        select: {
+          id: true,
+          titre: true,
+          Feedback: { select: { note: true } },
+        },
+      }),
+      prisma.event.findMany({
+        where: { juniorId, Feedback: { some: {} } },
+        select: {
+          id: true,
+          title: true,
+          Feedback: { select: { note: true } },
+        },
+      }),
+    ]);
+
+    // 4️⃣ Calculate Project stats
+    let totalProjectNotes = 0;
+    let totalProjectCount = 0;
+    const projectBreakdown = projects.map(p => {
+      const count = p.Feedback.length;
+      const sum = p.Feedback.reduce((s, f) => s + f.note, 0);
+      totalProjectNotes += sum;
+      totalProjectCount += count;
+      return {
+        id: p.id,
+        title: p.titre,
+        count,
+        average: count > 0 ? parseFloat((sum / count).toFixed(2)) : 0,
+      };
+    });
+
+    // 5️⃣ Calculate Event stats
+    let totalEventNotes = 0;
+    let totalEventCount = 0;
+    const eventBreakdown = events.map(e => {
+      const count = e.Feedback.length;
+      const sum = e.Feedback.reduce((s, f) => s + f.note, 0);
+      totalEventNotes += sum;
+      totalEventCount += count;
+      return {
+        id: e.id,
+        title: e.title,
+        count,
+        average: count > 0 ? parseFloat((sum / count).toFixed(2)) : 0,
+      };
+    });
+
+    // 6️⃣ Global stats (feedback from both projects & events for this junior)
+    const globalStats = await prisma.feedback.aggregate({
+      where: {
+        OR: [
+          { projectId: { in: projects.map(p => p.id) } },
+          { eventId: { in: events.map(e => e.id) } },
+        ],
+      },
+      _avg: { note: true },
+      _count: { id: true },
+    });
+
+    // 7️⃣ Return JSON
+    return NextResponse.json({
+      global: {
+        average: parseFloat((globalStats._avg.note || 0).toFixed(2)),
+        count: globalStats._count.id,
+      },
+      projects: {
+        overallAverage: totalProjectCount > 0 ? parseFloat((totalProjectNotes / totalProjectCount).toFixed(2)) : 0,
+        totalCount: totalProjectCount,
+        breakdown: projectBreakdown,
+      },
+      events: {
+        overallAverage: totalEventCount > 0 ? parseFloat((totalEventNotes / totalEventCount).toFixed(2)) : 0,
+        totalCount: totalEventCount,
+        breakdown: eventBreakdown,
+      },
+    }, { status: 200 });
+
   } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Impossible de récupérer les feedbacks" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-
-    const {
-      contenu,
-      note,
-      projectId,
-      eventId,
-    } = body;
-
-    // Champs obligatoires
-    if (!contenu || note === undefined) {
-      return NextResponse.json(
-        { error: "contenu and note are required" },
-        { status: 400 }
-      );
-    }
-
-    // Au moins une relation obligatoire
-    if (!projectId && !eventId) {
-      return NextResponse.json(
-        { error: "projectId or eventId is required" },
-        { status: 400 }
-      );
-    }
-
-    // Validation note
-    const noteNumber = Number(note);
-    if (isNaN(noteNumber) || noteNumber < 0 || noteNumber > 5) {
-      return NextResponse.json(
-        { error: "Invalid note value (0–5 expected)" },
-        { status: 400 }
-      );
-    }
-
-    const feedback = await prisma.feedback.create({
-      data: {
-        contenu,
-        note: noteNumber,
-
-        ...(projectId && {
-          project: {
-            connect: { id: Number(projectId) },
-          },
-        }),
-
-        ...(eventId && {
-          event: {
-            connect: { id: Number(eventId) },
-          },
-        }),
-      },
-    });
-
-    return NextResponse.json(feedback, { status: 201 });
-
-  } catch (error: any) {
-    console.error("Error creating feedback:", error);
-
-    // Clé étrangère invalide (project ou event inexistant)
-    if (error.code === "P2003") {
-      return NextResponse.json(
-        { error: "Project or Event not found" },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Failed to create feedback" },
-      { status: 500 }
-    );
+    console.error("Error fetching feedback stats:", error);
+    return NextResponse.json({ error: "Failed to calculate feedback statistics" }, { status: 500 });
   }
 }

@@ -1,3 +1,6 @@
+process.env.NODE_ENV = "development";
+process.env.NEXT_TELEMETRY_DISABLED = "1";
+
 import next from "next";
 import { createServer } from "http";
 import { Server as IOServer } from "socket.io";
