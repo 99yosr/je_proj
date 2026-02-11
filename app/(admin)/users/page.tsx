@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
-import { Edit, Trash2, Plus, X } from 'lucide-react'
+import { Pencil, Trash2, Plus, X } from 'lucide-react'
 import './style.css'
 import UsersSortControls, { useSortUsers } from '../components/UsersSort'
 import { useSearch } from '../components/SearchContext'
@@ -184,11 +184,10 @@ export default function UsersPage() {
                         </span>
                       </td>
                       <td className="table-cell actions-cell">
-
-                        <button className="btn-icon btn-edit" onClick={() => handleOpenModal(user)} title="Edit user">
-                          <Edit size={18} />
+                        <button className="btn-edit" onClick={() => handleOpenModal(user)} title="Edit user">
+                          <Pencil size={18} />
                         </button>
-                        <button className="btn-icon btn-delete" onClick={() => handleDelete(user.id)} title="Delete user">
+                        <button className="btn-delete" onClick={() => handleDelete(user.id)} title="Delete user">
                           <Trash2 size={18} />
                         </button>
                       </td>

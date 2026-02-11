@@ -123,32 +123,42 @@
 }
 
 .btn-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #eff6ff;
   color: #3b82f6;
-  font-size: 14px;
-  font-weight: 500;
-  margin-right: 16px;
-  cursor: pointer;
-  background: none;
   border: none;
-  transition: color 0.15s;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-right: 8px;
 }
 
 .btn-edit:hover {
-  color: #1d4ed8;
+  background: #dbeafe;
+  color: #2563eb;
 }
 
 .btn-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #fef2f2;
   color: #ef4444;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  background: none;
   border: none;
-  transition: color 0.15s;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .btn-delete:hover {
-  color: #b91c1c;
+  background: #fee2e2;
+  color: #dc2626;
 }
 
 .table-footer {
