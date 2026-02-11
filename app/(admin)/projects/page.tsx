@@ -18,7 +18,7 @@ type Project = {
   juniorId: number
   createdAt: string
   updatedAt: string
-  junior?: {
+  Junior?: {
     id: number
     name: string
   }
@@ -78,7 +78,7 @@ export default function ProjectsPage() {
       project.titre.toLowerCase().includes(query) ||
       project.description.toLowerCase().includes(query) ||
       project.statut.toLowerCase().includes(query) ||
-      (project.junior?.name && project.junior.name.toLowerCase().includes(query))
+      (project.Junior?.name && project.Junior.name.toLowerCase().includes(query))
     )
   }, [projects, searchQuery])
 
@@ -437,7 +437,7 @@ export default function ProjectsPage() {
 
                       <td className="table-cell">
                         <div className="project-junior">
-                          {item.junior?.name || 'N/A'}
+                          {item.Junior?.name || 'N/A'}
                         </div>
                       </td>
 

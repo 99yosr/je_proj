@@ -66,9 +66,9 @@ export async function GET(req: NextRequest) {
             ...event,
             // Rename relation fields to expected frontend names
             createdBy: event.user,
-            junior: event.junior,
+            Junior: event.junior,
             user: undefined,
-            Junior: undefined,
+            junior: undefined,
             logoUrl: event.logoMimeType ? `/api/events/${event.id}/image?type=logo` : null,
             featuredMediaUrl: event.featuredMediaMimeType ? `/api/events/${event.id}/image?type=featured` : null,
             // Remove MIME types from response (not needed by frontend)
