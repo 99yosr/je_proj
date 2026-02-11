@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAuth } from "@/lib/auth";
+import { notifyAllAdmins } from '@/lib/socket';
 
 // GET - Get a single project by ID
 export async function GET(
@@ -63,7 +64,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { titre, description, statut, dateDebut, dateFin } = body;
+    const { titre, description, statut, dateDebut, dateFin, image } = body;
 
     // Check if project exists
     const existingProject = await prisma.project.findUnique({
@@ -84,6 +85,7 @@ export async function PUT(
         ...(titre && { titre }),
         ...(description && { description }),
         ...(statut && { statut }),
+        ...(image !== undefined && { image }),
         ...(dateDebut && { dateDebut: new Date(dateDebut) }),
         ...(dateFin && { dateFin: new Date(dateFin) }),
       },
@@ -92,6 +94,12 @@ export async function PUT(
         Junior: true, // To keep the same junior name after updates.
       },
     });
+
+    // Send notification to all admins
+    await notifyAllAdmins(
+      `Project "${titre}" has been updated by ${user.name}`,
+      prisma
+    );
 
     return NextResponse.json(updatedProject, { status: 200 });
   } catch (error) {
@@ -124,6 +132,7 @@ export async function DELETE(
     // Check if project exists
     const existingProject = await prisma.project.findUnique({
       where: { id },
+      select: { titre: true }
     });
 
     if (!existingProject) {
@@ -137,6 +146,12 @@ export async function DELETE(
     await prisma.project.delete({
       where: { id },
     });
+
+    // Send notification to all admins
+    await notifyAllAdmins(
+      `Project "${existingProject.titre}" has been deleted by ${user.name}`,
+      prisma
+    );
 
     return NextResponse.json(
       { message: 'Project deleted successfully' },

@@ -1,14 +1,21 @@
 process.env.NODE_ENV = "development";
 process.env.NEXT_TELEMETRY_DISABLED = "1";
+// Prevent multiple instances
+process.env.NODE_OPTIONS = "--max-old-space-size=4096";
 
 import next from "next";
 import { createServer } from "http";
 import { Server as IOServer } from "socket.io";
 import cron from "node-cron";
 import prisma from "./lib/prisma.js";
+import { setIO } from "./lib/socket.js";
 
 const dev = process.env.NODE_ENV !== "production";
-const app = next({ dev });
+const app = next({ 
+  dev,
+  // Disable turbopack explicitly for Windows compatibility
+  turbo: false,
+});
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
@@ -23,15 +30,25 @@ app.prepare().then(() => {
     },
   });
 
+  // Set Socket.IO instance for use in API routes
+  setIO(io);
+
   io.on("connection", (socket) => {
     const userId = socket.handshake.query.userId;
-    if (typeof userId === "string") {
+    console.log(`[Socket] Connection attempt with userId:`, userId);
+    
+    if (typeof userId === "string" && userId !== "null" && userId !== "undefined") {
       socket.join(`user:${userId}`);
-      console.log(`User connected: ${userId}`);
+      console.log(`[Socket] User joined room user:${userId}`);
+      
+      // Verify the user is in the room
+      console.log(`[Socket] Rooms for socket:`, Array.from(socket.rooms));
+    } else {
+      console.warn(`[Socket] Invalid userId:`, userId);
     }
 
     socket.on("disconnect", () => {
-      console.log(`User disconnected: ${userId}`);
+      console.log(`[Socket] User disconnected: ${userId}`);
     });
   });
 
@@ -51,4 +68,21 @@ app.prepare().then(() => {
   server.listen(PORT, () =>
     console.log(`Server running on http://localhost:${PORT}`)
   );
+
+  // Cleanup on exit
+  process.on("SIGTERM", () => {
+    console.log("SIGTERM signal received: closing HTTP server");
+    server.close(() => {
+      console.log("HTTP server closed");
+      process.exit(0);
+    });
+  });
+
+  process.on("SIGINT", () => {
+    console.log("SIGINT signal received: closing HTTP server");
+    server.close(() => {
+      console.log("HTTP server closed");
+      process.exit(0);
+    });
+  });
 });

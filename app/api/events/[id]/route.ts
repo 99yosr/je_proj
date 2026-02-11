@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../../lib/prisma';
 import { requireAuth } from '../../../../lib/auth';
+import { notifyAllAdmins } from '../../../../lib/socket';
 
 type Params = Promise<{ id: string }>
 
@@ -88,9 +89,45 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
         const event = await prisma.event.update({
             where: { id: eventId },
             data: updateData,
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                shortDescription: true,
+                fullDescription: true,
+                date: true,
+                location: true,
+                isActive: true,
+                updatedAt: true,
+                juniorId: true,
+                createdById: true,
+                logoMimeType: true,
+                featuredMediaMimeType: true,
+                user: { select: { name: true, email: true } },
+                junior: { select: { name: true } },
+            },
         });
 
-        return NextResponse.json({ message: "Event updated", id: event.id });
+        // Send notification to all admins
+        const user = authResult.user!;
+        await notifyAllAdmins(
+            `Event "${title}" has been updated by ${user.name}`,
+            prisma
+        );
+
+        // Transform event to include proper URLs for images
+        const transformedEvent = {
+            ...event,
+            createdBy: event.user,
+            junior: event.junior,
+            user: undefined,
+            logoUrl: event.logoMimeType ? `/api/events/${event.id}/image?type=logo` : null,
+            featuredMediaUrl: event.featuredMediaMimeType ? `/api/events/${event.id}/image?type=featured` : null,
+            logoMimeType: undefined,
+            featuredMediaMimeType: undefined,
+        };
+
+        return NextResponse.json(transformedEvent);
     } catch (error: any) {
         console.error("Update error:", error);
         if (error.code === 'P2025') return NextResponse.json({ error: "Event not found" }, { status: 404 });
@@ -111,9 +148,26 @@ export async function DELETE(req: NextRequest, { params }: { params: Params }) {
         const eventId = parseInt(id);
         if (isNaN(eventId)) return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
 
+        // Get event title before deleting
+        const event = await prisma.event.findUnique({
+            where: { id: eventId },
+            select: { title: true }
+        });
+
+        if (!event) {
+            return NextResponse.json({ error: "Event not found" }, { status: 404 });
+        }
+
         await prisma.event.delete({
             where: { id: eventId },
         });
+
+        // Send notification to all admins
+        const user = authResult.user!;
+        await notifyAllAdmins(
+            `Event "${event.title}" has been deleted by ${user.name}`,
+            prisma
+        );
 
         return NextResponse.json({ message: "Event deleted" });
     } catch (error: any) {

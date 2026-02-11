@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell, Menu } from "lucide-react";
+import NotificationBell from "@/app/components/NotificationBell";
 
 type NavbarProps = {
   onToggleSidebar?: () => void;
@@ -46,9 +47,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
           {/* Right */}
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 gap-3">
             {/* Notification */}
-            <button className="rounded-full p-1 text-gray-400 hover:text-white focus:outline-none">
-              <Bell className="h-6 w-6" />
-            </button>
+            <NotificationBell />
 
             {/* Profile (visual only) */}
             <button className="relative flex rounded-full focus:outline-none">

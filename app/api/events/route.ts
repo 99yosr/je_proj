@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 import { requireAuth } from '../../../lib/auth';
+import { notifyAllAdmins } from '../../../lib/socket';
 
 export async function GET(req: NextRequest) {
     const startTime = Date.now();
@@ -147,12 +148,44 @@ export async function POST(req: NextRequest) {
                 featuredMediaMimeType,
                 isActive: true,
             } as any,
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                shortDescription: true,
+                fullDescription: true,
+                date: true,
+                location: true,
+                isActive: true,
+                updatedAt: true,
+                juniorId: true,
+                createdById: true,
+                logoMimeType: true,
+                featuredMediaMimeType: true,
+                user: { select: { name: true, email: true } },
+                junior: { select: { name: true } },
+            },
         });
 
-        return NextResponse.json({
-            message: "Event created",
-            id: event.id
-        }, { status: 201 });
+        // Send notification to all admins
+        await notifyAllAdmins(
+            `New event "${title}" has been created by ${user.name}`,
+            prisma
+        );
+
+        // Transform event to include proper URLs for images
+        const transformedEvent = {
+            ...event,
+            createdBy: event.user,
+            junior: event.junior,
+            user: undefined,
+            logoUrl: event.logoMimeType ? `/api/events/${event.id}/image?type=logo` : null,
+            featuredMediaUrl: event.featuredMediaMimeType ? `/api/events/${event.id}/image?type=featured` : null,
+            logoMimeType: undefined,
+            featuredMediaMimeType: undefined,
+        };
+
+        return NextResponse.json(transformedEvent, { status: 201 });
 
     } catch (error: any) {
         console.error("Error creating event:", error);

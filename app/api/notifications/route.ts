@@ -6,16 +6,10 @@ export async function GET(req: NextRequest) {
   const userId = req.headers.get("x-user-id");
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  // just fetch notifications
+  // Fetch notifications without marking as read
   const notifications = await prisma.notification.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
-  });
-
-  // mark all as read
-  await prisma.notification.updateMany({
-    where: { userId, isRead: false },
-    data: { isRead: true },
   });
 
   return NextResponse.json(notifications);
@@ -31,6 +25,20 @@ export async function POST(req: NextRequest) {
 
   const notification = await prisma.notification.create({
     data: { userId, message },
+  });
+
+  return NextResponse.json(notification);
+}
+
+export async function PUT(req: NextRequest) {
+  const body = await req.json();
+  const { id } = body;
+
+  if (!id) return NextResponse.json({ error: "Notification id is required" }, { status: 400 });
+
+  const notification = await prisma.notification.update({
+    where: { id },
+    data: { isRead: true },
   });
 
   return NextResponse.json(notification);

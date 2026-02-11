@@ -11,6 +11,7 @@ model Activite {
   id          Int    @id @default(autoincrement())
   nom         String
   description String
+  image       String?
   juniorId    Int
   Junior      Junior @relation(fields: [juniorId], references: [id])
 }
@@ -69,6 +70,7 @@ model Junior {
   role          String
   city          String
   contact_email String?
+  logo          String?
   Activite      Activite[]
   Event         Event[]
   FicheJE       FicheJE?
@@ -106,6 +108,7 @@ model Project {
   id          Int        @id @default(autoincrement())
   titre       String
   description String
+  image       String?
   statut      String     @default("EN_ATTENTE")
   dateDebut   DateTime?
   dateFin     DateTime
