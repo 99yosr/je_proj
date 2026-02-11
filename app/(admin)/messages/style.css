@@ -49,13 +49,44 @@
   font-size: 18px;
   font-weight: 600;
   color: #111827;
-  padding: 20px;
+  padding: 20px 20px 16px 20px;
   border-bottom: 1px solid #e5e7eb;
+}
+
+.search-container {
+  padding: 12px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.user-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  color: #111827;
+}
+
+.user-search-input:focus {
+  border-color: #3b82f6;
+}
+
+.user-search-input::placeholder {
+  color: #9ca3af;
 }
 
 .users-list-content {
   overflow-y: auto;
   flex: 1;
+}
+
+.no-users-found {
+  padding: 40px 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
 }
 
 .user-item {
@@ -66,6 +97,7 @@
   cursor: pointer;
   transition: background-color 0.2s;
   border-bottom: 1px solid #f3f4f6;
+  position: relative;
 }
 
 .user-item:hover {
@@ -111,6 +143,21 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.unread-badge {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ef4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
 }
 
 /* Conversation */
@@ -238,6 +285,7 @@
   outline: none;
   transition: border-color 0.2s;
   background: white;
+  color: #111827;
 }
 
 .message-input:focus {
