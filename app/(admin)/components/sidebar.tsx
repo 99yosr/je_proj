@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Menu, Home, Users, Settings } from "lucide-react";
+import { X, Menu, Home, Users, Settings, MessageSquare } from "lucide-react";
 import Link from "next/link";
 
 export default function Sidebar() {
@@ -11,6 +11,7 @@ export default function Sidebar() {
   const navItems = [
     { href: "/admin", icon: Home, label: "Dashboard" },
     { href: "/admin/users", icon: Users, label: "Users" },
+    { href: "/admin/messages", icon: MessageSquare, label: "Messages" },
     { href: "/admin/settings", icon: Settings, label: "Settings" },
   ];
 

@@ -12,6 +12,7 @@ type Junior = {
   role: string
   city: string
   contact_email: string | null
+  logo?: string | null
   created_at: string
 }
 
@@ -20,6 +21,12 @@ type JuniorFormData = {
   role: string
   city: string
   contact_email: string
+}
+
+type FileUploadState = {
+  file: File | null
+  preview: string
+  uploading: boolean
 }
 
 export default function JuniorsPage() {
@@ -33,6 +40,11 @@ export default function JuniorsPage() {
     role: '',
     city: '',
     contact_email: ''
+  })
+  const [fileUpload, setFileUpload] = useState<FileUploadState>({
+    file: null,
+    preview: '',
+    uploading: false
   })
   const [submitting, setSubmitting] = useState(false)
   const { searchQuery } = useSearch()
@@ -101,6 +113,11 @@ export default function JuniorsPage() {
         city: junior.city,
         contact_email: junior.contact_email || ''
       })
+      setFileUpload({
+        file: null,
+        preview: junior.logo || '',
+        uploading: false
+      })
     } else {
       setEditingJunior(null)
       setFormData({
@@ -108,6 +125,11 @@ export default function JuniorsPage() {
         role: '',
         city: '',
         contact_email: ''
+      })
+      setFileUpload({
+        file: null,
+        preview: '',
+        uploading: false
       })
     }
     setIsModalOpen(true)
@@ -122,6 +144,59 @@ export default function JuniorsPage() {
       city: '',
       contact_email: ''
     })
+    setFileUpload({
+      file: null,
+      preview: '',
+      uploading: false
+    })
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB')
+      return
+    }
+
+    const preview = URL.createObjectURL(file)
+    setFileUpload({
+      file,
+      preview,
+      uploading: false
+    })
+  }
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const uploadFormData = new FormData()
+    uploadFormData.append('file', file)
+
+    try {
+      setFileUpload(prev => ({ ...prev, uploading: true }))
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      })
+
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Failed to upload image')
+      }
+
+      const data = await res.json()
+      return data.url
+    } catch (error: any) {
+      alert(error.message || 'Failed to upload image')
+      return null
+    } finally {
+      setFileUpload(prev => ({ ...prev, uploading: false }))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -129,6 +204,22 @@ export default function JuniorsPage() {
     setSubmitting(true)
 
     try {
+      // Upload new logo if selected
+      let logoUrl = editingJunior?.logo || null
+      if (fileUpload.file) {
+        const uploadedUrl = await uploadImage(fileUpload.file)
+        if (!uploadedUrl) {
+          setSubmitting(false)
+          return
+        }
+        logoUrl = uploadedUrl
+      }
+
+      const dataToSubmit = {
+        ...formData,
+        logo: logoUrl
+      }
+
       if (editingJunior) {
         // Update existing junior
         const res = await fetch('/api/juniors', {
@@ -136,7 +227,7 @@ export default function JuniorsPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: editingJunior.id,
-            ...formData
+            ...dataToSubmit
           }),
         })
 
@@ -154,7 +245,7 @@ export default function JuniorsPage() {
         const res = await fetch('/api/juniors', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(dataToSubmit),
         })
 
         if (res.ok) {
@@ -409,21 +500,54 @@ export default function JuniorsPage() {
                 />
               </div>
 
+              <div className="form-group">
+                <label className="form-label" htmlFor="logo">
+                  Logo
+                </label>
+                <input
+                  id="logo"
+                  type="file"
+                  className="form-input"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                />
+                {fileUpload.preview && (
+                  <div style={{ marginTop: '12px' }}>
+                    <img 
+                      src={fileUpload.preview} 
+                      alt="Preview" 
+                      style={{ 
+                        maxWidth: '200px', 
+                        maxHeight: '200px', 
+                        objectFit: 'cover',
+                        borderRadius: '8px',
+                        border: '1px solid #d1d5db'
+                      }} 
+                    />
+                  </div>
+                )}
+                {fileUpload.uploading && (
+                  <p style={{ marginTop: '8px', color: '#6b7280', fontSize: '14px' }}>
+                    Uploading...
+                  </p>
+                )}
+              </div>
+
               <div className="modal-footer">
                 <button
                   type="button"
                   className="btn-cancel"
                   onClick={handleCloseModal}
-                  disabled={submitting}
+                  disabled={submitting || fileUpload.uploading}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="btn-submit"
-                  disabled={submitting}
+                  disabled={submitting || fileUpload.uploading}
                 >
-                  {submitting ? 'Saving...' : editingJunior ? 'Update' : 'Create'}
+                  {fileUpload.uploading ? 'Uploading...' : submitting ? 'Saving...' : editingJunior ? 'Update' : 'Create'}
                 </button>
               </div>
             </form>

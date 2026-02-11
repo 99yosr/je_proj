@@ -10,6 +10,7 @@ type Project = {
   id: number
   titre: string
   description: string
+  image?: string | null
   statut: string
   dateDebut: string | null
   dateFin: string
@@ -39,6 +40,12 @@ type ProjectFormData = {
   juniorId: string
 }
 
+type FileUploadState = {
+  file: File | null
+  preview: string
+  uploading: boolean
+}
+
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [juniors, setJuniors] = useState<Junior[]>([])
@@ -53,6 +60,11 @@ export default function ProjectsPage() {
     dateDebut: '',
     dateFin: '',
     juniorId: ''
+  })
+  const [fileUpload, setFileUpload] = useState<FileUploadState>({
+    file: null,
+    preview: '',
+    uploading: false
   })
   const [submitting, setSubmitting] = useState(false)
   const { searchQuery } = useSearch()
@@ -137,6 +149,11 @@ export default function ProjectsPage() {
         dateFin: project.dateFin.split('T')[0],
         juniorId: project.juniorId.toString()
       })
+      setFileUpload({
+        file: null,
+        preview: project.image || '',
+        uploading: false
+      })
     } else {
       setEditingProject(null)
       setFormData({
@@ -146,6 +163,11 @@ export default function ProjectsPage() {
         dateDebut: '',
         dateFin: '',
         juniorId: ''
+      })
+      setFileUpload({
+        file: null,
+        preview: '',
+        uploading: false
       })
     }
     setIsModalOpen(true)
@@ -162,6 +184,59 @@ export default function ProjectsPage() {
       dateFin: '',
       juniorId: ''
     })
+    setFileUpload({
+      file: null,
+      preview: '',
+      uploading: false
+    })
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB')
+      return
+    }
+
+    const preview = URL.createObjectURL(file)
+    setFileUpload({
+      file,
+      preview,
+      uploading: false
+    })
+  }
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const uploadFormData = new FormData()
+    uploadFormData.append('file', file)
+
+    try {
+      setFileUpload(prev => ({ ...prev, uploading: true }))
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      })
+
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Failed to upload image')
+      }
+
+      const data = await res.json()
+      return data.url
+    } catch (error: any) {
+      alert(error.message || 'Failed to upload image')
+      return null
+    } finally {
+      setFileUpload(prev => ({ ...prev, uploading: false }))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -192,6 +267,17 @@ export default function ProjectsPage() {
     setSubmitting(true)
 
     try {
+      // Upload new image if selected
+      let imageUrl = editingProject?.image || null
+      if (fileUpload.file) {
+        const uploadedUrl = await uploadImage(fileUpload.file)
+        if (!uploadedUrl) {
+          setSubmitting(false)
+          return
+        }
+        imageUrl = uploadedUrl
+      }
+
       if (editingProject) {
         // Update existing project
         const res = await fetch(`/api/projects/${editingProject.id}`, {
@@ -203,6 +289,7 @@ export default function ProjectsPage() {
             statut: formData.statut,
             dateDebut: formData.dateDebut || null,
             dateFin: formData.dateFin,
+            image: imageUrl
           }),
         })
 
@@ -224,6 +311,7 @@ export default function ProjectsPage() {
             ...formData,
             juniorId: parseInt(formData.juniorId),
             dateDebut: formData.dateDebut || null,
+            image: imageUrl
           }),
         })
 
@@ -474,6 +562,39 @@ export default function ProjectsPage() {
                 />
               </div>
 
+              <div className="form-group">
+                <label className="form-label" htmlFor="image">
+                  Image
+                </label>
+                <input
+                  id="image"
+                  type="file"
+                  className="form-input"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                />
+                {fileUpload.preview && (
+                  <div style={{ marginTop: '12px' }}>
+                    <img 
+                      src={fileUpload.preview} 
+                      alt="Preview" 
+                      style={{ 
+                        maxWidth: '200px', 
+                        maxHeight: '200px', 
+                        objectFit: 'cover',
+                        borderRadius: '8px',
+                        border: '1px solid #d1d5db'
+                      }} 
+                    />
+                  </div>
+                )}
+                {fileUpload.uploading && (
+                  <p style={{ marginTop: '8px', color: '#6b7280', fontSize: '14px' }}>
+                    Uploading...
+                  </p>
+                )}
+              </div>
+
               {!editingProject && (
                 <div className="form-group">
                   <label className="form-label" htmlFor="juniorId">
@@ -547,16 +668,16 @@ export default function ProjectsPage() {
                   type="button"
                   className="btn-cancel"
                   onClick={handleCloseModal}
-                  disabled={submitting}
+                  disabled={submitting || fileUpload.uploading}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="btn-submit"
-                  disabled={submitting}
+                  disabled={submitting || fileUpload.uploading}
                 >
-                  {submitting ? 'Saving...' : editingProject ? 'Update' : 'Create'}
+                  {fileUpload.uploading ? 'Uploading...' : submitting ? 'Saving...' : editingProject ? 'Update' : 'Create'}
                 </button>
               </div>
             </form>

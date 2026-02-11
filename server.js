@@ -8,6 +8,7 @@ import { createServer } from "http";
 import { Server as IOServer } from "socket.io";
 import cron from "node-cron";
 import prisma from "./lib/prisma.js";
+import { setIO } from "./lib/socket.js";
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ 
@@ -29,15 +30,25 @@ app.prepare().then(() => {
     },
   });
 
+  // Set Socket.IO instance for use in API routes
+  setIO(io);
+
   io.on("connection", (socket) => {
     const userId = socket.handshake.query.userId;
-    if (typeof userId === "string") {
+    console.log(`[Socket] Connection attempt with userId:`, userId);
+    
+    if (typeof userId === "string" && userId !== "null" && userId !== "undefined") {
       socket.join(`user:${userId}`);
-      console.log(`User connected: ${userId}`);
+      console.log(`[Socket] User joined room user:${userId}`);
+      
+      // Verify the user is in the room
+      console.log(`[Socket] Rooms for socket:`, Array.from(socket.rooms));
+    } else {
+      console.warn(`[Socket] Invalid userId:`, userId);
     }
 
     socket.on("disconnect", () => {
-      console.log(`User disconnected: ${userId}`);
+      console.log(`[Socket] User disconnected: ${userId}`);
     });
   });
 

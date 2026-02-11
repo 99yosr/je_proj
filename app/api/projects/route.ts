@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAuth } from "@/lib/auth";
+import { notifyAllAdmins } from '@/lib/socket';
 
 // GET - Get all projects
 export async function GET(request: NextRequest) {
@@ -29,10 +30,16 @@ export async function GET(request: NextRequest) {
 
 // POST - Create a new project
 export async function POST(request: NextRequest) {
+  // Require authentication
+  const authResult = await requireAuth(request);
+  if (authResult.error) {
+    return authResult.error;
+  }
+  const user = authResult.user!;
 
   try {
     const body = await request.json();
-    const { titre, description, statut, dateDebut, dateFin, juniorId } = body;
+    const { titre, description, statut, dateDebut, dateFin, juniorId, image } = body;
 
     // Validate required fields
     if (!titre || !description || !statut || !dateFin || !juniorId) {
@@ -47,6 +54,7 @@ export async function POST(request: NextRequest) {
       data: {
         titre,
         description,
+        image: image || null,
         statut: statut || "EN_ATTENTE",
         dateDebut: dateDebut ? new Date(dateDebut) : null,
         dateFin: new Date(dateFin),
@@ -59,6 +67,12 @@ export async function POST(request: NextRequest) {
         Junior: true,
       },
     });
+
+    // Send notification to all admins
+    await notifyAllAdmins(
+      `New project "${titre}" has been created by ${user.name}`,
+      prisma
+    );
 
     return NextResponse.json(project, { status: 201 });
   } catch (error) {

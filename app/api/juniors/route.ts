@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   const { error, user } = await requireRole(req, ['ADMIN']);
       if (error) return error;
   try {
-    const { name, role, city, contact_email } = await req.json();
+    const { name, role, city, contact_email, logo } = await req.json();
     if (!name || !role || !city)
       return NextResponse.json(
         { error: "Nom, rôle et ville requis" },
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       );
 
     const newJunior = await prisma.junior.create({
-      data: { name, role, city, contact_email },
+      data: { name, role, city, contact_email, logo: logo || null },
     });
 
     return NextResponse.json([newJunior]); // retourne un tableau pour le frontend
@@ -45,13 +45,19 @@ export async function PUT(req: NextRequest) {
   const { error, user } = await requireRole(req, ['ADMIN']);
       if (error) return error;
   try {
-    const { id, name, role, city, contact_email } = await req.json();
+    const { id, name, role, city, contact_email, logo } = await req.json();
     if (id === undefined)
       return NextResponse.json({ error: "ID requis" }, { status: 400 });
 
     const updatedJunior = await prisma.junior.update({
       where: { id }, // ✅ id est Int, pas besoin de BigInt
-      data: { name, role, city, contact_email },
+      data: { 
+        name, 
+        role, 
+        city, 
+        contact_email,
+        ...(logo !== undefined && { logo })
+      },
     });
 
     return NextResponse.json([updatedJunior]); // retourne un tableau pour le frontend

@@ -10,13 +10,10 @@ export async function PATCH(
   { params }: { params: Params }
 ) {
   const { error, user } = await requireAuth(request);
-      if (error) return error;
+  if (error) return error;
+  
   try {
-    const userId = request.headers.get('x-user-id');
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'x-user-id header is required' }, { status: 401 });
-    }
+    const userId = user!.id;
 
     const { id } = await params;
     const messageId = parseInt(id);
