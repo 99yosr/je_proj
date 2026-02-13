@@ -33,8 +33,8 @@ model Event {
   featuredMediaMimeType String?
   logoData              Bytes?
   logoMimeType          String?
-  user                  User       @relation(fields: [createdById], references: [id])
-  junior                Junior     @relation(fields: [juniorId], references: [id])
+  User                  User       @relation(fields: [createdById], references: [id])
+  Junior                Junior     @relation(fields: [juniorId], references: [id])
   Feedback              Feedback[]
 
   @@index([updatedAt])
@@ -121,12 +121,13 @@ model Project {
 }
 
 model User {
-  id                               String    @id @default(uuid())
+  id                               String    @id @default(cuid())
   email                            String    @unique
   name                             String
   createdAt                        DateTime  @default(now())
   password                         String
   role                             Role      @default(RJE)
+  nbrmembres                       Int?      @default(0)
   Event                            Event[]
   Message_Message_receiverIdToUser Message[] @relation("Message_receiverIdToUser")
   Message_Message_senderIdToUser   Message[] @relation("Message_senderIdToUser")
