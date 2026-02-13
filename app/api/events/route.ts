@@ -21,8 +21,8 @@ export async function GET(req: NextRequest) {
                 // Only select MIME types to check if images exist (not the binary data!)
                 logoMimeType: true,
                 featuredMediaMimeType: true,
-                User: { select: { name: true, email: true } },
-                Junior: { select: { name: true } },
+                user: { select: { name: true, email: true } },
+                junior: { select: { name: true } },
             },
             orderBy: { updatedAt: 'desc' },
         });
