@@ -23,27 +23,27 @@ type Project = {
   }
 }
 
-type Junior = {
-  id: number
-  name: string
-  role: string
-  city: string
-}
-
 type ProjectFormData = {
   titre: string
   description: string
   statut: string
   dateDebut: string
   dateFin: string
-  juniorId: string
+}
+
+type User = {
+  id: string
+  email: string
+  name: string
+  role: string
+  juniorId: number | null
 }
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
-  const [juniors, setJuniors] = useState<Junior[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [formData, setFormData] = useState<ProjectFormData>({
@@ -51,19 +51,42 @@ export default function ProjectsPage() {
     description: '',
     statut: 'EN_ATTENTE',
     dateDebut: '',
-    dateFin: '',
-    juniorId: ''
+    dateFin: ''
   })
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    fetchProjects()
-    fetchJuniors()
+    fetchCurrentUser()
   }, [])
 
-  const fetchProjects = async () => {
+  const fetchCurrentUser = async () => {
     try {
-      const res = await fetch('/api/projects', {
+      const res = await fetch('/api/auth/me', {
+        credentials: 'include',
+      })
+
+      if (!res.ok) {
+        throw new Error('Not authenticated')
+      }
+
+      const userData = await res.json()
+      setCurrentUser(userData)
+
+      if (userData.juniorId) {
+        await fetchProjects(userData.juniorId)
+      } else {
+        setError('You are not associated with any Junior Enterprise')
+        setLoading(false)
+      }
+    } catch (err) {
+      setError('Failed to authenticate. Please login.')
+      setLoading(false)
+    }
+  }
+
+  const fetchProjects = async (juniorId: number) => {
+    try {
+      const res = await fetch(`/api/projects?juniorId=${juniorId}`, {
         credentials: 'include',
       })
 
@@ -74,24 +97,9 @@ export default function ProjectsPage() {
       const data = await res.json()
       setProjects(data)
     } catch (err) {
-      setError('You are not authorized or something went wrong')
+      setError('Failed to load projects')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const fetchJuniors = async () => {
-    try {
-      const res = await fetch('/api/juniors', {
-        credentials: 'include',
-      })
-
-      if (res.ok) {
-        const data = await res.json()
-        setJuniors(data)
-      }
-    } catch (err) {
-      console.error('Failed to fetch juniors:', err)
     }
   }
 
@@ -117,8 +125,7 @@ export default function ProjectsPage() {
         description: project.description,
         statut: project.statut,
         dateDebut: project.dateDebut ? project.dateDebut.split('T')[0] : '',
-        dateFin: project.dateFin.split('T')[0],
-        juniorId: project.juniorId.toString()
+        dateFin: project.dateFin.split('T')[0]
       })
     } else {
       setEditingProject(null)
@@ -127,8 +134,7 @@ export default function ProjectsPage() {
         description: '',
         statut: 'EN_ATTENTE',
         dateDebut: '',
-        dateFin: '',
-        juniorId: ''
+        dateFin: ''
       })
     }
     setIsModalOpen(true)
@@ -142,13 +148,17 @@ export default function ProjectsPage() {
       description: '',
       statut: 'EN_ATTENTE',
       dateDebut: '',
-      dateFin: '',
-      juniorId: ''
+      dateFin: ''
     })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!currentUser?.juniorId) {
+      alert('No junior enterprise associated with your account')
+      return
+    }
     
     // Date validation
     const today = new Date()
@@ -190,10 +200,7 @@ export default function ProjectsPage() {
         })
 
         if (res.ok) {
-          const updatedProject = await res.json()
-          setProjects(prev => prev.map(item => 
-            item.id === updatedProject.id ? updatedProject : item
-          ))
+          await fetchProjects(currentUser.juniorId)
           handleCloseModal()
         } else {
           alert('Failed to update project')
@@ -204,15 +211,17 @@ export default function ProjectsPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            ...formData,
-            juniorId: parseInt(formData.juniorId),
+            titre: formData.titre,
+            description: formData.description,
+            statut: formData.statut,
             dateDebut: formData.dateDebut || null,
+            dateFin: formData.dateFin,
+            juniorId: currentUser.juniorId
           }),
         })
 
         if (res.ok) {
-          const newProject = await res.json()
-          setProjects(prev => [newProject, ...prev])
+          await fetchProjects(currentUser.juniorId)
           handleCloseModal()
         } else {
           const errorData = await res.json()
@@ -286,13 +295,11 @@ export default function ProjectsPage() {
       <div className="projects-container">
         {/* Header */}
         <div className="projects-header">
-          <h1 className="projects-title">Projects</h1>
+          <h1 className="projects-title">My Projects</h1>
           <p className="projects-subtitle">
-            Manage your projects and track their progress
+            Manage your Junior Enterprise projects and track their progress
           </p>
         </div>
-
-
 
         {/* Table Card */}
         <div className="table-card">
@@ -301,7 +308,6 @@ export default function ProjectsPage() {
               <thead className="table-head">
                 <tr>
                   <th className="table-header">Title</th>
-                  <th className="table-header">Junior</th>
                   <th className="table-header">Status</th>
                   <th className="table-header">End Date</th>
                   <th className="table-header table-header-right">Actions</th>
@@ -311,8 +317,8 @@ export default function ProjectsPage() {
               <tbody>
                 {projects.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="empty-state">
-                      No projects found
+                    <td colSpan={4} className="empty-state">
+                      No projects found. Create your first project!
                     </td>
                   </tr>
                 ) : (
@@ -325,16 +331,10 @@ export default function ProjectsPage() {
                               {item.titre}
                             </div>
                             <div className="project-description-preview">
-                              {item.description.substring(0, 60)}
-                              {item.description.length > 60 ? '...' : ''}
+                              {item.description.substring(0, 80)}
+                              {item.description.length > 80 ? '...' : ''}
                             </div>
                           </div>
-                        </div>
-                      </td>
-
-                      <td className="table-cell">
-                        <div className="project-junior">
-                          {item.Junior?.name || 'N/A'}
                         </div>
                       </td>
 
@@ -457,29 +457,6 @@ export default function ProjectsPage() {
                   rows={6}
                 />
               </div>
-
-              {!editingProject && (
-                <div className="form-group">
-                  <label className="form-label" htmlFor="juniorId">
-                    Junior *
-                  </label>
-                  <select
-                    id="juniorId"
-                    className="form-input"
-                    value={formData.juniorId}
-                    onChange={(e) => setFormData({ ...formData, juniorId: e.target.value })}
-                    required
-                  >
-                    <option value="">Select a junior</option>
-                    {juniors.map(junior => (
-                      <option key={junior.id} value={junior.id}>
-                        {junior.name} - {junior.city}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
               <div className="form-group">
                 <label className="form-label" htmlFor="statut">
                   Status *

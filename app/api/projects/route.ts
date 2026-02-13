@@ -8,7 +8,12 @@ export async function GET(request: NextRequest) {
   const { error, user } = await requireAuth(request);
       if (error) return error;
   try {
+    // Get juniorId from query params (optional filter)
+    const { searchParams } = new URL(request.url);
+    const juniorIdParam = searchParams.get('juniorId');
+
     const projects = await prisma.project.findMany({
+      where: juniorIdParam ? { juniorId: parseInt(juniorIdParam) } : {},
       include: {
         Feedback: true,
         Junior: true,

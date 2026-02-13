@@ -45,7 +45,12 @@ export async function GET(req: NextRequest) {
   if (error) return error;
 
   try {
+    // Get juniorId from query params (optional filter)
+    const { searchParams } = new URL(req.url);
+    const juniorIdParam = searchParams.get('juniorId');
+
     const activites = await prisma.activite.findMany({
+      where: juniorIdParam ? { juniorId: parseInt(juniorIdParam) } : {},
       include: { Junior: true } // inclut les infos du junior
     });
     return NextResponse.json(activites, { status: 200 });
