@@ -5,7 +5,12 @@ import { notifyAllAdmins } from '../../../lib/socket';
 
 export async function GET(req: NextRequest) {
     try {
+        // Get juniorId from query params (optional filter)
+        const { searchParams } = new URL(req.url);
+        const juniorIdParam = searchParams.get('juniorId');
+
         const events = await prisma.event.findMany({
+            where: juniorIdParam ? { juniorId: parseInt(juniorIdParam) } : {},
             select: {
                 id: true,
                 title: true,

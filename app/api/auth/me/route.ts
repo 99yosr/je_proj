@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
+import { getSession, getUserWithJunior } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,11 +12,22 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Fetch user with juniorId from database
+    const userWithJunior = await getUserWithJunior(session.user.id);
+
+    if (!userWithJunior) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
-      id: session.user.id,
-      email: session.user.email,
-      name: session.user.name,
-      role: session.user.role,
+      id: userWithJunior.id,
+      email: userWithJunior.email,
+      name: userWithJunior.name,
+      role: userWithJunior.role,
+      juniorId: userWithJunior.juniorId,
     });
   } catch (error) {
     console.error('Error fetching user:', error);

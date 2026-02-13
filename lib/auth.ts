@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getIronSession } from 'iron-session'
 import { sessionOptions } from './session'
 import { SessionData } from '../types/iron-session'
+import prisma from './prisma'
 
 export async function getSession(req: NextRequest) {
   const res = new NextResponse()
@@ -27,6 +28,25 @@ export async function requireAuth(req: NextRequest) {
     error: null,
     user: session.user,
     session,
+  }
+}
+
+export async function getUserWithJunior(userId: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        juniorId: true,
+      }
+    })
+    return user
+  } catch (error) {
+    console.error('Error fetching user with junior:', error)
+    return null
   }
 }
 
