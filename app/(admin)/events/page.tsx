@@ -75,7 +75,7 @@ export default function EventsPage() {
         featuredPreview: ''
     })
 
-    // Filter states
+
     const [search, setSearch] = useState('')
     const [debouncedSearch, setDebouncedSearch] = useState('')
     const [juniorId, setJuniorId] = useState('')
@@ -451,10 +451,10 @@ export default function EventsPage() {
                             <table className="events-table">
                                 <thead className="table-head">
                                     <tr>
-                                        <EventsSortControls 
-                                            currentSort={sortColumn} 
-                                            currentDirection={sortDirection} 
-                                            onSort={handleSort} 
+                                        <EventsSortControls
+                                            currentSort={sortColumn}
+                                            currentDirection={sortDirection}
+                                            onSort={handleSort}
                                         />
                                     </tr>
                                 </thead>

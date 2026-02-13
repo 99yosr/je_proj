@@ -5,6 +5,7 @@ import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
 import ProjectsSortControls, { useSortProjects } from '../components/ProjectsSort'
 import { useSearch } from '../components/SearchContext'
+import Filter from '../../components/Filter' // Import ajouté
 
 type Project = {
   id: number
@@ -21,6 +22,8 @@ type Project = {
   Junior?: {
     id: number
     name: string
+    role: string // Ajouté pour le filtrage
+    city?: string
   }
 }
 
@@ -67,20 +70,46 @@ export default function ProjectsPage() {
     uploading: false
   })
   const [submitting, setSubmitting] = useState(false)
+
+  // États pour le filtrage
+  const [selectedJuniorFilter, setSelectedJuniorFilter] = useState<number | null>(null)
+  const [onlyJuniors, setOnlyJuniors] = useState(false)
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<string | null>(null)
+
   const { searchQuery } = useSearch()
 
-  // Filter projects based on search query
+  // Filter projects based on search query AND filters
   const filteredProjects = useMemo(() => {
-    if (!searchQuery) return projects
-    
-    const query = searchQuery.toLowerCase()
-    return projects.filter(project => 
-      project.titre.toLowerCase().includes(query) ||
-      project.description.toLowerCase().includes(query) ||
-      project.statut.toLowerCase().includes(query) ||
-      (project.Junior?.name && project.Junior.name.toLowerCase().includes(query))
-    )
-  }, [projects, searchQuery])
+    let data = projects
+
+    // Filtre par junior sélectionné
+    if (selectedJuniorFilter) {
+      data = data.filter(p => p.juniorId === selectedJuniorFilter)
+    }
+
+    // Filtre par rôle junior (option "junior only")
+    if (onlyJuniors) {
+      data = data.filter(p => p.Junior?.role === 'junior')
+    }
+
+    // Filtre par statut
+    if (selectedStatusFilter) {
+      data = data.filter(p => p.statut === selectedStatusFilter)
+    }
+
+    // Filtre par search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      data = data.filter(project =>
+        project.titre.toLowerCase().includes(query) ||
+        project.description.toLowerCase().includes(query) ||
+        project.statut.toLowerCase().includes(query) ||
+        (project.Junior?.name && project.Junior.name.toLowerCase().includes(query))
+      )
+    }
+
+    return data
+  }, [projects, searchQuery, selectedJuniorFilter, onlyJuniors, selectedStatusFilter])
 
   // Apply sorting to filtered projects
   const { sortedData, sortColumn, sortDirection, handleSort } = useSortProjects(filteredProjects)
@@ -241,29 +270,29 @@ export default function ProjectsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Date validation
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    
+
     const endDate = new Date(formData.dateFin)
     endDate.setHours(0, 0, 0, 0)
-    
+
     if (endDate < today) {
       alert('End date cannot be in the past')
       return
     }
-    
+
     if (formData.dateDebut) {
       const startDate = new Date(formData.dateDebut)
       startDate.setHours(0, 0, 0, 0)
-      
+
       if (endDate < startDate) {
         alert('End date cannot be before start date')
         return
       }
     }
-    
+
     setSubmitting(true)
 
     try {
@@ -295,7 +324,7 @@ export default function ProjectsPage() {
 
         if (res.ok) {
           const updatedProject = await res.json()
-          setProjects(prev => prev.map(item => 
+          setProjects(prev => prev.map(item =>
             item.id === updatedProject.id ? updatedProject : item
           ))
           handleCloseModal()
@@ -365,6 +394,40 @@ export default function ProjectsPage() {
     }
   }
 
+  // Préparer les données pour le filtre des juniors
+  const juniorItemsForFilter = juniors.map(j => ({
+    id: j.id,
+    name: j.name,
+    userType: j.role,
+    city: j.city
+  }))
+
+  // Préparer les données pour le filtre des statuts
+  const statusItemsForFilter = [
+    { id: 1, name: 'Pending', value: 'EN_ATTENTE' },
+    { id: 2, name: 'In Progress', value: 'EN_COURS' },
+    { id: 3, name: 'Completed', value: 'TERMINE' }
+  ]
+
+  const handleJuniorSelect = (juniorId: number | null) => {
+    setSelectedJuniorFilter(juniorId)
+  }
+
+  const handleStatusSelect = (statusId: number | null) => {
+    if (statusId === null) {
+      setSelectedStatusFilter(null)
+    } else {
+      const status = statusItemsForFilter.find(s => s.id === statusId)
+      setSelectedStatusFilter(status?.value || null)
+    }
+  }
+
+  const clearAllFilters = () => {
+    setSelectedJuniorFilter(null)
+    setOnlyJuniors(false)
+    setSelectedStatusFilter(null)
+  }
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -397,16 +460,62 @@ export default function ProjectsPage() {
           </p>
         </div>
 
+        {/* Section des filtres */}
+        <div className="filters-section">
+          <div className="filters-grid">
+            <Filter
+              title="Filter by Junior"
+              items={juniorItemsForFilter}
+              onSelect={handleJuniorSelect}
+              selectedId={selectedJuniorFilter}
+              showClearButton={true}
+            />
+
+            <Filter
+              title="Filter by Status"
+              items={statusItemsForFilter.map(s => ({
+                id: s.id,
+                name: s.name,
+                userType: 'Status'
+              }))}
+              onSelect={handleStatusSelect}
+              selectedId={statusItemsForFilter.find(s => s.value === selectedStatusFilter)?.id || null}
+              showClearButton={true}
+            />
+          </div>
+
+          <div className="additional-filters">
+            <label className="filter-checkbox">
+              <input
+                type="checkbox"
+                checked={onlyJuniors}
+                onChange={(e) => setOnlyJuniors(e.target.checked)}
+                className="checkbox-input"
+              />
+              <span className="checkbox-label">Show only junior projects</span>
+            </label>
+
+            {(selectedJuniorFilter || onlyJuniors || selectedStatusFilter) && (
+              <button
+                className="clear-filters-btn"
+                onClick={clearAllFilters}
+              >
+                Clear all filters
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Table Card */}
         <div className="table-card">
           <div className="table-wrapper">
             <table className="projects-table">
               <thead className="table-head">
                 <tr>
-                  <ProjectsSortControls 
-                    currentSort={sortColumn} 
-                    currentDirection={sortDirection} 
-                    onSort={handleSort} 
+                  <ProjectsSortControls
+                    currentSort={sortColumn}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
                   />
                 </tr>
               </thead>
@@ -438,6 +547,9 @@ export default function ProjectsPage() {
                       <td className="table-cell">
                         <div className="project-junior">
                           {item.Junior?.name || 'N/A'}
+                          {item.Junior?.role === 'junior' && (
+                            <span className="junior-tag">Junior</span>
+                          )}
                         </div>
                       </td>
 
@@ -454,14 +566,14 @@ export default function ProjectsPage() {
                       </td>
 
                       <td className="table-cell actions-cell">
-                        <button 
+                        <button
                           className="btn-edit"
                           onClick={() => handleOpenModal(item)}
                           title="Edit"
                         >
                           <Pencil size={18} />
                         </button>
-                        <button 
+                        <button
                           className="btn-delete"
                           onClick={() => handleDelete(item.id)}
                           title="Delete"
@@ -480,24 +592,30 @@ export default function ProjectsPage() {
           <div className="table-footer">
             <p className="footer-text">
               Total projects: <span className="footer-count">{sortedData.length}</span>
-              {searchQuery && <span className="text-gray-400"> (filtered from {projects.length})</span>}
+              {searchQuery && <span className="filter-indicator"> (filtered from {projects.length})</span>}
+              {(selectedJuniorFilter || onlyJuniors || selectedStatusFilter) && (
+                <span className="filter-active-indicator">
+                  <span className="filter-dot"></span>
+                  Filters applied
+                </span>
+              )}
             </p>
           </div>
         </div>
       </div>
 
       {/* Floating Add Button */}
-      <button 
+      <button
         className="floating-add-button"
         onClick={() => handleOpenModal()}
         title="Add new project"
       >
-        <svg 
-          width="24" 
-          height="24" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
           strokeWidth="2"
         >
           <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -513,16 +631,16 @@ export default function ProjectsPage() {
               <h2 className="modal-title">
                 {editingProject ? 'Edit Project' : 'Add Project'}
               </h2>
-              <button 
+              <button
                 className="modal-close"
                 onClick={handleCloseModal}
               >
-                <svg 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
                   strokeWidth="2"
                 >
                   <line x1="18" y1="6" x2="6" y2="18"></line>
