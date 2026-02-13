@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Send } from 'lucide-react'
+import { io, Socket } from 'socket.io-client'
 import './style.css'
 
 type User = {
@@ -29,17 +30,113 @@ export default function MessagesPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const socketRef = useRef<Socket | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [userSearch, setUserSearch] = useState('')
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({})
 
   useEffect(() => {
     fetchCurrentUser()
     fetchUsers()
   }, [])
 
+  // Fetch initial unread counts for all users
   useEffect(() => {
-    if (selectedUser) {
-      fetchMessages(selectedUser.id)
+    if (currentUserId && users.length > 0) {
+      fetchAllUnreadCounts()
     }
-  }, [selectedUser])
+  }, [currentUserId, users])
+
+  // Socket.IO connection
+  useEffect(() => {
+    if (!currentUserId) return
+
+    console.log('🔌 Connecting to socket with userId:', currentUserId)
+    const socket = io('http://localhost:3000', {
+      query: { userId: currentUserId }
+    })
+
+    socket.on('connect', () => {
+      console.log('✅ Socket connected:', socket.id)
+    })
+
+    socket.on('new-message', (message: Message) => {
+      console.log('📨 Received new message via socket:', message)
+      
+      // Only add message if it's part of current conversation
+      if (selectedUser && 
+          (message.senderId === selectedUser.id || message.receiverId === selectedUser.id)) {
+        setMessages(prev => {
+          // Avoid duplicates
+          if (prev.find(m => m.id === message.id)) return prev
+          return [...prev, message]
+        })
+      } else if (message.receiverId === currentUserId && message.senderId !== currentUserId) {
+        // Message received but not in current conversation - increment unread count
+        setUnreadCounts(prev => ({
+          ...prev,
+          [message.senderId]: (prev[message.senderId] || 0) + 1
+        }))
+        
+        // Show browser notification
+        if (Notification.permission === 'granted') {
+          new Notification('New Message', {
+            body: `${message.User_Message_senderIdToUser?.name || 'Someone'}: ${message.content}`,
+            icon: '/favicon.ico'
+          })
+        }
+      }
+    })
+
+    socket.on('disconnect', () => {
+      console.log('❌ Socket disconnected')
+    })
+
+    socketRef.current = socket
+
+    return () => {
+      console.log('🔌 Disconnecting socket')
+      socket.disconnect()
+    }
+  }, [currentUserId, selectedUser])
+
+  useEffect(() => {
+    if (selectedUser && currentUserId) {
+      fetchMessages(selectedUser.id)
+      // Clear unread count when selecting user
+      setUnreadCounts(prev => {
+        const updated = { ...prev }
+        delete updated[selectedUser.id]
+        return updated
+      })
+      // Mark messages as read from this user
+      markMessagesAsRead(selectedUser.id)
+    }
+  }, [selectedUser, currentUserId])
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  // Request notification permission
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+  }, [])
+
+  // Filter users based on search
+  const filteredUsers = users
+    .filter(u => u.id !== currentUserId)
+    .filter(u => {
+      if (!userSearch) return true
+      const search = userSearch.toLowerCase()
+      return (
+        (u.name?.toLowerCase().includes(search)) ||
+        u.email.toLowerCase().includes(search)
+      )
+    })
 
   const fetchCurrentUser = async () => {
     console.log('🟢 Fetching current user...')
@@ -87,6 +184,33 @@ export default function MessagesPage() {
       }
     } catch (error) {
       console.error('❌ Error fetching messages:', error)
+    }
+  }
+
+  const markMessagesAsRead = async (senderId: string) => {
+    try {
+      await fetch('/api/messages/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ senderId })
+      })
+    } catch (error) {
+      console.error('Error marking messages as read:', error)
+    }
+  }
+
+  const fetchAllUnreadCounts = async () => {
+    try {
+      const res = await fetch('/api/messages/unread-by-sender', { 
+        credentials: 'include' 
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setUnreadCounts(data.counts || {})
+      }
+    } catch (error) {
+      console.error('Error fetching unread counts:', error)
     }
   }
 
@@ -149,22 +273,40 @@ export default function MessagesPage() {
           {/* Users List */}
           <div className="users-list">
             <h2 className="users-list-title">Users</h2>
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                className="user-search-input"
+              />
+            </div>
             <div className="users-list-content">
-              {users.filter(u => u.id !== currentUserId).map(user => (
-                <div
-                  key={user.id}
-                  className={`user-item ${selectedUser?.id === user.id ? 'active' : ''}`}
-                  onClick={() => setSelectedUser(user)}
-                >
-                  <div className="user-avatar">
-                    {(user.name || user.email)[0].toUpperCase()}
-                  </div>
-                  <div className="user-info">
-                    <div className="user-name">{user.name || 'No Name'}</div>
-                    <div className="user-email">{user.email}</div>
-                  </div>
+              {filteredUsers.length === 0 ? (
+                <div className="no-users-found">
+                  <p>{userSearch ? 'No users found' : 'No other users'}</p>
                 </div>
-              ))}
+              ) : (
+                filteredUsers.map(user => (
+                  <div
+                    key={user.id}
+                    className={`user-item ${selectedUser?.id === user.id ? 'active' : ''}`}
+                    onClick={() => setSelectedUser(user)}
+                  >
+                    <div className="user-avatar">
+                      {(user.name || user.email)[0].toUpperCase()}
+                    </div>
+                    <div className="user-info">
+                      <div className="user-name">{user.name || 'No Name'}</div>
+                      <div className="user-email">{user.email}</div>
+                    </div>
+                    {unreadCounts[user.id] > 0 && (
+                      <div className="unread-badge">{unreadCounts[user.id]}</div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -192,17 +334,20 @@ export default function MessagesPage() {
                       <p>No messages yet. Start the conversation!</p>
                     </div>
                   ) : (
-                    messages.map(message => (
-                      <div
-                        key={message.id}
-                        className={`message ${message.senderId === currentUserId ? 'sent' : 'received'}`}
-                      >
-                        <div className="message-content">{message.content}</div>
-                        <div className="message-time">
-                          {new Date(message.createdAt).toLocaleString()}
+                    <>
+                      {messages.map(message => (
+                        <div
+                          key={message.id}
+                          className={`message ${message.senderId === currentUserId ? 'sent' : 'received'}`}
+                        >
+                          <div className="message-content">{message.content}</div>
+                          <div className="message-time">
+                            {new Date(message.createdAt).toLocaleString()}
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      ))}
+                      <div ref={messagesEndRef} />
+                    </>
                   )}
                 </div>
 

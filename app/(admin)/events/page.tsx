@@ -18,7 +18,7 @@ type Event = {
     featuredMediaUrl: string | null
     updatedAt: string
     juniorId: number
-    junior: { name: string }
+    Junior?: { name: string }
     createdBy: { name: string; email: string }
 }
 
@@ -504,7 +504,7 @@ export default function EventsPage() {
 
                                                 <td className="table-cell">
                                                     <div className="text-sm text-gray-900">
-                                                        {event.junior?.name || 'Unknown'}
+                                                        {event.Junior?.name || 'Unknown'}
                                                     </div>
                                                 </td>
 

@@ -125,6 +125,19 @@ export async function POST(request: NextRequest) {
     });
     console.log('✅ Message created successfully:', message.id);
 
+    // Emit real-time message via Socket.IO
+    const { getIO } = await import('@/lib/socket');
+    const socketIO = getIO();
+    if (socketIO) {
+      // Emit to receiver
+      socketIO.to(`user:${receiverId}`).emit('new-message', message);
+      // Also emit to sender for multi-device sync
+      socketIO.to(`user:${userId}`).emit('new-message', message);
+      console.log('✅ Message emitted via socket to users:', userId, receiverId);
+    } else {
+      console.warn('⚠️ Socket.IO not available');
+    }
+
     return NextResponse.json({ message }, { status: 201 });
   } catch (error) {
     console.error('❌ Error sending message:', error);

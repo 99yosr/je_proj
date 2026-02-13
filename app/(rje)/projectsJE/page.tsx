@@ -17,7 +17,7 @@ type Project = {
   juniorId: number
   createdAt: string
   updatedAt: string
-  junior?: {
+  Junior?: {
     id: number
     name: string
   }
@@ -334,7 +334,7 @@ export default function ProjectsPage() {
 
                       <td className="table-cell">
                         <div className="project-junior">
-                          {item.junior?.name || 'N/A'}
+                          {item.Junior?.name || 'N/A'}
                         </div>
                       </td>
 
