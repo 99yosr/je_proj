@@ -8,10 +8,20 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
+    const juniorIdParam = searchParams.get('juniorId');
 
     if (id) {
       const news = await prisma.news.findUnique({
         where: { id: parseInt(id) },
+        include: {
+          Junior: {
+            select: {
+              id: true,
+              name: true,
+              city: true
+            }
+          }
+        }
       });
       if (!news) {
         return NextResponse.json({ error: 'News not found' }, { status: 404 });
@@ -20,6 +30,16 @@ export async function GET(req: NextRequest) {
     }
 
     const news = await prisma.news.findMany({
+      where: juniorIdParam ? { juniorId: parseInt(juniorIdParam) } : {},
+      include: {
+        Junior: {
+          select: {
+            id: true,
+            name: true,
+            city: true
+          }
+        }
+      },
       orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json(news);
@@ -38,7 +58,7 @@ export async function POST(req: NextRequest) {
   const user = authResult.user!;
 
   try {
-    const { title, content, author, image } = await req.json();
+    const { title, content, author, image, juniorId } = await req.json();
     
     if (!title || !content) {
       return NextResponse.json(
@@ -53,7 +73,17 @@ export async function POST(req: NextRequest) {
         content,
         author,
         image,
+        juniorId: juniorId ? parseInt(juniorId) : null,
       },
+      include: {
+        Junior: juniorId ? {
+          select: {
+            id: true,
+            name: true,
+            city: true
+          }
+        } : false
+      }
     });
 
     // Send notification to all admins
@@ -92,6 +122,15 @@ export async function PUT(req: NextRequest) {
         ...(author !== undefined && { author }),
         ...(image !== undefined && { image }),
       },
+      include: {
+        Junior: {
+          select: {
+            id: true,
+            name: true,
+            city: true
+          }
+        }
+      }
     });
 
     // Send notification to all admins

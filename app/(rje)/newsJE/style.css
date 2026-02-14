@@ -79,7 +79,7 @@
 
 .actions-column {
   text-align: center;
-  width: 100px;
+  width: 120px;
 }
 
 .actions-cell {
@@ -106,14 +106,53 @@
   margin: 0 4px;
 }
 
-.btn-view {
-  background: #f0f9ff;
-  color: #0284c7;
+.btn-edit {
+  background: #eff6ff;
+  color: #3b82f6;
 }
 
-.btn-view:hover {
-  background: #e0f2fe;
-  color: #0369a1;
+.btn-edit:hover {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.btn-delete {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Floating Add Button */
+.floating-add-button {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.floating-add-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 15px 35px rgba(59, 130, 246, 0.5);
+}
+
+.floating-add-button:active {
+  transform: scale(1.05);
 }
 
 /* Loading State */
@@ -228,43 +267,64 @@
   padding: 24px;
 }
 
-.news-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Form Styles */
+.form-group {
   margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e5e7eb;
 }
 
-.news-author {
+.form-label {
+  display: block;
   font-size: 14px;
   font-weight: 500;
-  color: #3b82f6;
+  color: #374151;
+  margin-bottom: 8px;
 }
 
-.news-date {
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
   font-size: 14px;
-  color: #6b7280;
+  color: #111827;
+  transition: all 0.2s;
 }
 
-.news-image {
-  margin-bottom: 24px;
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  transition: all 0.2s;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.image-preview {
+  margin-top: 12px;
   border-radius: 8px;
   overflow: hidden;
+  max-width: 300px;
 }
 
-.news-image img {
+.image-preview img {
   width: 100%;
   height: auto;
   display: block;
-}
-
-.news-content {
-  font-size: 15px;
-  line-height: 1.7;
-  color: #374151;
-  white-space: pre-wrap;
 }
 
 .modal-footer {
@@ -291,6 +351,33 @@
   border-color: #d1d5db;
 }
 
+.btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-submit {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .page-container {
@@ -308,5 +395,12 @@
 
   .modal-content {
     max-width: 100%;
+  }
+
+  .floating-add-button {
+    width: 56px;
+    height: 56px;
+    bottom: 24px;
+    right: 24px;
   }
 }
