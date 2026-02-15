@@ -9,9 +9,9 @@ function SearchBarWrapper() {
   const { setSearchQuery } = useSearch();
   return (
     <div className="mb-6">
-      <SearchBar 
-        onSearch={setSearchQuery} 
-        placeholder="Search across all dashboards..." 
+      <SearchBar
+        onSearch={setSearchQuery}
+        placeholder="Search across all dashboards..."
       />
     </div>
   );
@@ -24,18 +24,18 @@ export default function AdminLayout({
 }) {
   return (
     <SearchProvider>
-      <div className="flex h-screen bg-gray-950 text-white">
+      <div className="flex h-screen bg-[#F5F5F7] text-gray-900">
         {/* Sidebar - fixed width on desktop, hidden on mobile */}
         <Sidebar />
-        
+
         {/* Main content area */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Navbar at top */}
           <Navbar />
-          
+
           {/* Page content */}
           <main className="flex-1 overflow-y-auto p-6">
-            <SearchBarWrapper />
+            {/* <SearchBarWrapper /> */}
             {children}
           </main>
         </div>
