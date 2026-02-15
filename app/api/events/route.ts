@@ -26,8 +26,8 @@ export async function GET(req: NextRequest) {
                 // Only select MIME types to check if images exist (not the binary data!)
                 logoMimeType: true,
                 featuredMediaMimeType: true,
-                user: { select: { name: true, email: true } },
-                junior: { select: { name: true } },
+                User: { select: { name: true, email: true } },
+                Junior: { select: { name: true } },
             },
             orderBy: { updatedAt: 'desc' },
         });
@@ -126,8 +126,8 @@ export async function POST(req: NextRequest) {
                 createdById: true,
                 logoMimeType: true,
                 featuredMediaMimeType: true,
-                user: { select: { name: true, email: true } },
-                junior: { select: { name: true } },
+                User: { select: { name: true, email: true } },
+                Junior: { select: { name: true } },
             },
         });
 
@@ -140,8 +140,8 @@ export async function POST(req: NextRequest) {
         // Transform event to include proper URLs for images
         const transformedEvent = {
             ...event,
-            createdBy: event.user,
-            junior: event.junior,
+            createdBy: event.User,
+            junior: event.Junior,
             user: undefined,
             logoUrl: event.logoMimeType ? `/api/events/${event.id}/image?type=logo` : null,
             featuredMediaUrl: event.featuredMediaMimeType ? `/api/events/${event.id}/image?type=featured` : null,

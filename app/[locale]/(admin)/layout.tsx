@@ -35,7 +35,7 @@ export default function AdminLayout({
 
           {/* Page content */}
           <main className="flex-1 overflow-y-auto p-6">
-            {/* <SearchBarWrapper /> */}
+             <SearchBarWrapper /> 
             {children}
           </main>
         </div>

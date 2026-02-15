@@ -48,7 +48,6 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
       name,
       role: safeRole,
-      nbrmembres: role === 'RJE' && nbrmembres ? Number(nbrmembres) : null,
     },
   })
 

@@ -4,7 +4,7 @@ import { Pencil, Trash2, Star, MessageSquare } from 'lucide-react'
 import './style.css'
 import ProjectsSortControls, { useSortProjects } from '../components/ProjectsSort'
 import { useSearch } from '../components/SearchContext'
-import Filter from '../../components/Filter'
+import Filter from '../../../components/Filter'
 
 type Project = {
   id: number
@@ -654,7 +654,6 @@ const handleOpenFeedbackModal = async (project: Project) => {
                           title="View Feedback"
                         >
                           <MessageSquare size={18} />
-                          <span>Feedback</span>
                         </button>
                       </td>
                     </tr>
