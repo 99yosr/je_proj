@@ -5,7 +5,7 @@ import { Pencil, Trash2, Search } from 'lucide-react'
 import './style.css'
 import ActivitySortControls, { useSortActivity } from '../components/ActivitySort'
 import { useSearch } from '../components/SearchContext'
-import Filter from '../../components/Filter' // Import du filtre
+import Filter from '../../../components/Filter' // Import du filtre
 
 type Activity = {
   id: number

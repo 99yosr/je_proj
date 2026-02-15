@@ -1,4 +1,4 @@
-import SwaggerWrapper from "../components/SwaggerWrapper";
+import SwaggerWrapper from "../../components/SwaggerWrapper";
 
 export default function DocsPage() {
   return (
