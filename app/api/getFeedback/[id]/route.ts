@@ -7,41 +7,60 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { error, user } = await requireAuth(request);
-      if (error) return error;
-  try {
-    // Récupérer l'id depuis les params (async)
-    const { id: idParam } = await params;
-    const id = parseInt(idParam);
+  if (error) return error;
 
-    // Vérifier que l'id est valide
-    if (isNaN(id)) {
+  try {
+    const { id: idParam } = await params;
+    const projectId = parseInt(idParam);
+
+    if (isNaN(projectId)) {
       return NextResponse.json(
-        { error: "Invalid feedback ID" },
+        { error: "Invalid project ID" },
         { status: 400 }
       );
     }
 
-    // Chercher le feedback par id
-    const feedback = await prisma.feedback.findUnique({
-      where: { id },
+    // Get all feedback for this project
+    const feedbacks = await prisma.feedback.findMany({
+      where: { projectId },
       include: {
-        Project: true, // inclure les infos du projet lié
+        Project: true,
       },
     });
 
-    // Si aucun feedback trouvé
-    if (!feedback) {
-      return NextResponse.json(
-        { error: "Feedback not found" },
-        { status: 404 }
-      );
-    }
+    // Calculate statistics
+    const totalFeedbacks = feedbacks.length;
+    const averageRating = totalFeedbacks > 0
+      ? feedbacks.reduce((sum, f) => sum + f.note, 0) / totalFeedbacks
+      : 0;
 
-    // Succès
-    return NextResponse.json(feedback, { status: 200 });
+    // Format response to match your FeedbackStats type
+    const response = {
+      global: {
+        average: averageRating,
+        count: totalFeedbacks,
+      },
+      projects: {
+        overallAverage: averageRating,
+        totalCount: totalFeedbacks,
+        breakdown: feedbacks.map(f => ({
+          id: f.id,
+          title: f.Project?.titre || "Unknown",
+          count: 1,
+          average: f.note,
+        })),
+      },
+      events: {
+        overallAverage: 0,
+        totalCount: 0,
+        breakdown: [],
+      },
+    };
+
+    return NextResponse.json(response, { status: 200 });
 
   } catch (error) {
-    console.error("Error fetching feedback:", error);
+    console.error("Error fetching project feedback:", error);
     return NextResponse.json(
       { error: "Failed to fetch feedback" },
       { status: 500 }
