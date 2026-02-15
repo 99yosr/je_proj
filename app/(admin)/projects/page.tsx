@@ -1,11 +1,10 @@
 'use client'
-
 import { useEffect, useState, useMemo } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, Star, MessageSquare } from 'lucide-react'
 import './style.css'
 import ProjectsSortControls, { useSortProjects } from '../components/ProjectsSort'
 import { useSearch } from '../components/SearchContext'
-import Filter from '../../components/Filter' // Import ajouté
+import Filter from '../../components/Filter'
 
 type Project = {
   id: number
@@ -22,7 +21,7 @@ type Project = {
   Junior?: {
     id: number
     name: string
-    role: string // Ajouté pour le filtrage
+    role: string
     city?: string
   }
 }
@@ -47,6 +46,34 @@ type FileUploadState = {
   file: File | null
   preview: string
   uploading: boolean
+}
+
+// Types for feedback data
+type FeedbackStats = {
+  global: {
+    average: number
+    count: number
+  }
+  projects: {
+    overallAverage: number
+    totalCount: number
+    breakdown: Array<{
+      id: number
+      title: string
+      count: number
+      average: number
+    }>
+  }
+  events: {
+    overallAverage: number
+    totalCount: number
+    breakdown: Array<{
+      id: number
+      title: string
+      count: number
+      average: number
+    }>
+  }
 }
 
 export default function ProjectsPage() {
@@ -75,6 +102,13 @@ export default function ProjectsPage() {
   const [selectedJuniorFilter, setSelectedJuniorFilter] = useState<number | null>(null)
   const [onlyJuniors, setOnlyJuniors] = useState(false)
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string | null>(null)
+
+  // États pour le modal de feedback
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
+  const [selectedProjectForFeedback, setSelectedProjectForFeedback] = useState<Project | null>(null)
+  const [feedbackStats, setFeedbackStats] = useState<FeedbackStats | null>(null)
+  const [feedbackLoading, setFeedbackLoading] = useState(false)
+  const [feedbackError, setFeedbackError] = useState<string | null>(null)
 
   const { searchQuery } = useSearch()
 
@@ -124,11 +158,9 @@ export default function ProjectsPage() {
       const res = await fetch('/api/projects', {
         credentials: 'include',
       })
-
       if (!res.ok) {
         throw new Error('Failed to fetch projects')
       }
-
       const data = await res.json()
       setProjects(data)
     } catch (err) {
@@ -143,7 +175,6 @@ export default function ProjectsPage() {
       const res = await fetch('/api/juniors', {
         credentials: 'include',
       })
-
       if (res.ok) {
         const data = await res.json()
         setJuniors(data)
@@ -155,11 +186,9 @@ export default function ProjectsPage() {
 
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this project?')) return
-
     const res = await fetch(`/api/projects/${id}`, {
       method: 'DELETE',
     })
-
     if (res.ok) {
       setProjects(prev => prev.filter(item => item.id !== id))
     } else {
@@ -220,26 +249,50 @@ export default function ProjectsPage() {
     })
   }
 
+// Fonction pour ouvrir le modal de feedback
+const handleOpenFeedbackModal = async (project: Project) => {
+  setSelectedProjectForFeedback(project)
+  setIsFeedbackModalOpen(true)
+  setFeedbackLoading(true)
+  setFeedbackError(null)
+
+  try {
+    // CORRECT PATH based on your folder structure:
+    const res = await fetch(`/api/getFeedback/${project.id}`)
+
+    if (!res.ok) {
+      throw new Error('Failed to fetch feedback')
+    }
+    const data = await res.json()
+    setFeedbackStats(data)
+  } catch (err) {
+    setFeedbackError('Failed to load feedback statistics')
+    console.error(err)
+  } finally {
+    setFeedbackLoading(false)
+  }
+}
+
+  const handleCloseFeedbackModal = () => {
+    setIsFeedbackModalOpen(false)
+    setSelectedProjectForFeedback(null)
+    setFeedbackStats(null)
+    setFeedbackError(null)
+  }
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
     if (!file.type.startsWith('image/')) {
       alert('Please select an image file')
       return
     }
-
     if (file.size > 5 * 1024 * 1024) {
       alert('File size must be less than 5MB')
       return
     }
-
     const preview = URL.createObjectURL(file)
-    setFileUpload({
-      file,
-      preview,
-      uploading: false
-    })
+    setFileUpload({ file, preview, uploading: false })
   }
 
   const uploadImage = async (file: File): Promise<string | null> => {
@@ -252,12 +305,10 @@ export default function ProjectsPage() {
         method: 'POST',
         body: uploadFormData,
       })
-
       if (!res.ok) {
         const error = await res.json()
         throw new Error(error.error || 'Failed to upload image')
       }
-
       const data = await res.json()
       return data.url
     } catch (error: any) {
@@ -274,7 +325,6 @@ export default function ProjectsPage() {
     // Date validation
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-
     const endDate = new Date(formData.dateFin)
     endDate.setHours(0, 0, 0, 0)
 
@@ -286,7 +336,6 @@ export default function ProjectsPage() {
     if (formData.dateDebut) {
       const startDate = new Date(formData.dateDebut)
       startDate.setHours(0, 0, 0, 0)
-
       if (endDate < startDate) {
         alert('End date cannot be before start date')
         return
@@ -311,7 +360,9 @@ export default function ProjectsPage() {
         // Update existing project
         const res = await fetch(`/api/projects/${editingProject.id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify({
             titre: formData.titre,
             description: formData.description,
@@ -335,7 +386,9 @@ export default function ProjectsPage() {
         // Create new project
         const res = await fetch('/api/projects', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify({
             ...formData,
             juniorId: parseInt(formData.juniorId),
@@ -392,6 +445,26 @@ export default function ProjectsPage() {
       default:
         return statut
     }
+  }
+
+  // Fonction pour afficher les étoiles
+  const renderStars = (average: number) => {
+    const fullStars = Math.floor(average)
+    const hasHalfStar = average % 1 >= 0.5
+    const stars = []
+
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<Star key={`full-${i}`} size={16} fill="currentColor" className="star-filled" />)
+    }
+    if (hasHalfStar) {
+      stars.push(<Star key="half" size={16} fill="currentColor" className="star-half" />)
+    }
+    const emptyStars = 5 - stars.length
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<Star key={`empty-${i}`} size={16} className="star-empty" />)
+    }
+
+    return stars
   }
 
   // Préparer les données pour le filtre des juniors
@@ -470,7 +543,6 @@ export default function ProjectsPage() {
               selectedId={selectedJuniorFilter}
               showClearButton={true}
             />
-
             <Filter
               title="Filter by Status"
               items={statusItemsForFilter.map(s => ({
@@ -483,7 +555,6 @@ export default function ProjectsPage() {
               showClearButton={true}
             />
           </div>
-
           <div className="additional-filters">
             <label className="filter-checkbox">
               <input
@@ -494,7 +565,6 @@ export default function ProjectsPage() {
               />
               <span className="checkbox-label">Show only junior projects</span>
             </label>
-
             {(selectedJuniorFilter || onlyJuniors || selectedStatusFilter) && (
               <button
                 className="clear-filters-btn"
@@ -517,13 +587,13 @@ export default function ProjectsPage() {
                     currentDirection={sortDirection}
                     onSort={handleSort}
                   />
+                  <th className="table-header">Feedback</th>
                 </tr>
               </thead>
-
               <tbody>
                 {sortedData.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="empty-state">
+                    <td colSpan={6} className="empty-state">
                       No projects found
                     </td>
                   </tr>
@@ -543,7 +613,6 @@ export default function ProjectsPage() {
                           </div>
                         </div>
                       </td>
-
                       <td className="table-cell">
                         <div className="project-junior">
                           {item.Junior?.name || 'N/A'}
@@ -552,19 +621,16 @@ export default function ProjectsPage() {
                           )}
                         </div>
                       </td>
-
                       <td className="table-cell">
                         <span className={`status-badge ${getStatusBadgeClass(item.statut)}`}>
                           {getStatusLabel(item.statut)}
                         </span>
                       </td>
-
                       <td className="table-cell">
                         <div className="project-date">
                           {formatDate(item.dateFin)}
                         </div>
                       </td>
-
                       <td className="table-cell actions-cell">
                         <button
                           className="btn-edit"
@@ -581,6 +647,16 @@ export default function ProjectsPage() {
                           <Trash2 size={18} />
                         </button>
                       </td>
+                      <td className="table-cell">
+                        <button
+                          className="btn-feedback"
+                          onClick={() => handleOpenFeedbackModal(item)}
+                          title="View Feedback"
+                        >
+                          <MessageSquare size={18} />
+                          <span>Feedback</span>
+                        </button>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -595,8 +671,7 @@ export default function ProjectsPage() {
               {searchQuery && <span className="filter-indicator"> (filtered from {projects.length})</span>}
               {(selectedJuniorFilter || onlyJuniors || selectedStatusFilter) && (
                 <span className="filter-active-indicator">
-                  <span className="filter-dot"></span>
-                  Filters applied
+                  <span className="filter-dot"></span> Filters applied
                 </span>
               )}
             </p>
@@ -610,20 +685,13 @@ export default function ProjectsPage() {
         onClick={() => handleOpenModal()}
         title="Add new project"
       >
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
       </button>
 
-      {/* Modal */}
+      {/* Project Modal */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -631,24 +699,13 @@ export default function ProjectsPage() {
               <h2 className="modal-title">
                 {editingProject ? 'Edit Project' : 'Add Project'}
               </h2>
-              <button
-                className="modal-close"
-                onClick={handleCloseModal}
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
+              <button className="modal-close" onClick={handleCloseModal}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
               </button>
             </div>
-
             <form onSubmit={handleSubmit} className="modal-form">
               <div className="form-group">
                 <label className="form-label" htmlFor="titre">
@@ -664,7 +721,6 @@ export default function ProjectsPage() {
                   placeholder="Enter project title"
                 />
               </div>
-
               <div className="form-group">
                 <label className="form-label" htmlFor="description">
                   Description *
@@ -679,7 +735,6 @@ export default function ProjectsPage() {
                   rows={6}
                 />
               </div>
-
               <div className="form-group">
                 <label className="form-label" htmlFor="image">
                   Image
@@ -693,16 +748,16 @@ export default function ProjectsPage() {
                 />
                 {fileUpload.preview && (
                   <div style={{ marginTop: '12px' }}>
-                    <img 
-                      src={fileUpload.preview} 
-                      alt="Preview" 
-                      style={{ 
-                        maxWidth: '200px', 
-                        maxHeight: '200px', 
+                    <img
+                      src={fileUpload.preview}
+                      alt="Preview"
+                      style={{
+                        maxWidth: '200px',
+                        maxHeight: '200px',
                         objectFit: 'cover',
                         borderRadius: '8px',
                         border: '1px solid #d1d5db'
-                      }} 
+                      }}
                     />
                   </div>
                 )}
@@ -712,7 +767,6 @@ export default function ProjectsPage() {
                   </p>
                 )}
               </div>
-
               {!editingProject && (
                 <div className="form-group">
                   <label className="form-label" htmlFor="juniorId">
@@ -734,7 +788,6 @@ export default function ProjectsPage() {
                   </select>
                 </div>
               )}
-
               <div className="form-group">
                 <label className="form-label" htmlFor="statut">
                   Status *
@@ -751,7 +804,6 @@ export default function ProjectsPage() {
                   <option value="TERMINE">Completed</option>
                 </select>
               </div>
-
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label" htmlFor="dateDebut">
@@ -765,7 +817,6 @@ export default function ProjectsPage() {
                     onChange={(e) => setFormData({ ...formData, dateDebut: e.target.value })}
                   />
                 </div>
-
                 <div className="form-group">
                   <label className="form-label" htmlFor="dateFin">
                     End Date *
@@ -780,7 +831,6 @@ export default function ProjectsPage() {
                   />
                 </div>
               </div>
-
               <div className="modal-footer">
                 <button
                   type="button"
@@ -795,10 +845,126 @@ export default function ProjectsPage() {
                   className="btn-submit"
                   disabled={submitting || fileUpload.uploading}
                 >
-                  {fileUpload.uploading ? 'Uploading...' : submitting ? 'Saving...' : editingProject ? 'Update' : 'Create'}
+                  {fileUpload.uploading ? 'Uploading...' :
+                   submitting ? 'Saving...' :
+                   editingProject ? 'Update' : 'Create'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Modal */}
+      {isFeedbackModalOpen && (
+        <div className="modal-overlay" onClick={handleCloseFeedbackModal}>
+          <div className="modal-content feedback-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">
+                Feedback for: {selectedProjectForFeedback?.titre}
+              </h2>
+              <button className="modal-close" onClick={handleCloseFeedbackModal}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <div className="feedback-content">
+              {feedbackLoading ? (
+                <div className="feedback-loading">
+                  <div className="spinner-small"></div>
+                  <p>Loading feedback statistics...</p>
+                </div>
+              ) : feedbackError ? (
+                <div className="feedback-error">
+                  <p>{feedbackError}</p>
+                </div>
+              ) : feedbackStats ? (
+                <div className="feedback-stats">
+                  {/* Global Statistics */}
+                  <div className="stats-card global-stats">
+                    <h3>Overall Feedback</h3>
+                    <div className="stats-grid">
+                      <div className="stat-item">
+                        <span className="stat-label">Average Rating</span>
+                        <div className="rating-display">
+                          <div className="stars-container">
+                            {renderStars(feedbackStats.global.average)}
+                          </div>
+                          <span className="rating-value">{feedbackStats.global.average.toFixed(1)}</span>
+                        </div>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-label">Total Feedbacks</span>
+                        <span className="stat-value">{feedbackStats.global.count}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Project-specific statistics */}
+                  {feedbackStats.projects.breakdown.length > 0 && (
+                    <div className="stats-card">
+                      <h3>Project Feedback Details</h3>
+                      {feedbackStats.projects.breakdown.map(project => (
+                        <div key={project.id} className="breakdown-item">
+                          <div className="breakdown-header">
+                            <span className="breakdown-title">{project.title}</span>
+                            <span className="breakdown-count">{project.count} feedbacks</span>
+                          </div>
+                          <div className="breakdown-rating">
+                            <div className="stars-container">
+                              {renderStars(project.average)}
+                            </div>
+                            <span className="rating-value">{project.average.toFixed(1)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Event statistics related to this junior */}
+                  {feedbackStats.events.breakdown.length > 0 && (
+                    <div className="stats-card">
+                      <h3>Related Events Feedback</h3>
+                      <p className="stats-subtitle">Events attended by this junior</p>
+                      {feedbackStats.events.breakdown.map(event => (
+                        <div key={event.id} className="breakdown-item">
+                          <div className="breakdown-header">
+                            <span className="breakdown-title">{event.title}</span>
+                            <span className="breakdown-count">{event.count} feedbacks</span>
+                          </div>
+                          <div className="breakdown-rating">
+                            <div className="stars-container">
+                              {renderStars(event.average)}
+                            </div>
+                            <span className="rating-value">{event.average.toFixed(1)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {feedbackStats.projects.breakdown.length === 0 &&
+                   feedbackStats.events.breakdown.length === 0 && (
+                    <div className="no-feedback-message">
+                      <p>No feedback available for this project or related events.</p>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={handleCloseFeedbackModal}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
