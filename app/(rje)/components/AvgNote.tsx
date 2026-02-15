@@ -17,14 +17,17 @@ type StatsResponse = {
   };
 };
 
-export default function FeedbackStatsCard() {
+export default function FeedbackStatsCard({ juniorId }: { juniorId?: number }) {
   const [stats, setStats] = useState<StatsResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("/api/getFeedback/stats");
+        const url = juniorId 
+          ? `/api/getFeedback/stats?juniorId=${juniorId}` 
+          : "/api/getFeedback/stats";
+        const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch stats");
         const json = await res.json();
         setStats(json);
@@ -36,7 +39,7 @@ export default function FeedbackStatsCard() {
     };
 
     fetchStats();
-  }, []);
+  }, [juniorId]);
 
   if (loading) {
     return (

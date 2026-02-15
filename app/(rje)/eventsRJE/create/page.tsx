@@ -5,16 +5,19 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import '../style.css' // Reuse the same styles
 
-type Junior = {
-    id: number
+type User = {
+    id: string
+    email: string
     name: string
+    role: string
+    juniorId: number | null
 }
 
 export default function CreateEventPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [juniors, setJuniors] = useState<Junior[]>([])
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
 
     const [title, setTitle] = useState('')
     const [slug, setSlug] = useState('')
@@ -22,7 +25,6 @@ export default function CreateEventPage() {
     const [fullDescription, setFullDescription] = useState('')
     const [date, setDate] = useState('')
     const [location, setLocation] = useState('')
-    const [juniorId, setJuniorId] = useState('')
 
     // File states
     const [logoFile, setLogoFile] = useState<File | null>(null)
@@ -31,6 +33,31 @@ export default function CreateEventPage() {
     const [logoPreview, setLogoPreview] = useState<string>('')
     const [featuredPreview, setFeaturedPreview] = useState<string>('')
 
+    useEffect(() => {
+        // Fetch current user to get their juniorId
+        const fetchCurrentUser = async () => {
+            try {
+                const res = await fetch('/api/auth/me', {
+                    credentials: 'include',
+                })
+
+                if (!res.ok) {
+                    throw new Error('Not authenticated')
+                }
+
+                const userData = await res.json()
+                setCurrentUser(userData)
+
+                if (!userData.juniorId) {
+                    setError('You are not associated with any Junior Enterprise')
+                }
+            } catch (err) {
+                setError('Failed to authenticate. Please login.')
+            }
+        }
+
+        fetchCurrentUser()
+    }, [])
 
     useEffect(() => {
         // Generate slug
@@ -40,21 +67,6 @@ export default function CreateEventPage() {
             .replace(/(^-|-$)+/g, '')
         setSlug(generatedSlug)
     }, [title])
-
-    useEffect(() => {
-        // Fetch Juniors
-        const fetchJuniors = async () => {
-            try {
-                const resJuniors = await fetch('/api/juniors')
-                if (resJuniors.ok) {
-                    setJuniors(await resJuniors.json())
-                }
-            } catch (err) {
-                console.error('Failed to load juniors', err)
-            }
-        }
-        fetchJuniors()
-    }, [])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setFile: (f: File | null) => void, setPreview: (u: string) => void) => {
         const file = e.target.files?.[0]
@@ -66,6 +78,12 @@ export default function CreateEventPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!currentUser?.juniorId) {
+            setError('You must be associated with a Junior Enterprise to create events')
+            return
+        }
+
         setLoading(true)
         setError(null)
 
@@ -77,7 +95,7 @@ export default function CreateEventPage() {
             formData.append('fullDescription', fullDescription)
             formData.append('date', date)
             formData.append('location', location)
-            formData.append('juniorId', juniorId)
+            formData.append('juniorId', currentUser.juniorId.toString())
             formData.append('isActive', 'true')
             // Note: createdById is now handled server-side via session
 
@@ -98,7 +116,7 @@ export default function CreateEventPage() {
                 throw new Error(data.error || 'Failed to create event')
             }
 
-            router.push('/events')
+            router.push('/eventsRJE')
             router.refresh()
         } catch (err: any) {
             setError(err.message)
@@ -112,7 +130,7 @@ export default function CreateEventPage() {
             <div className="events-container" style={{ maxWidth: '800px' }}>
                 <div className="events-header">
                     <h1 className="events-title">Create New Event</h1>
-                    <Link href="/events" className="text-gray-500 hover:text-gray-700">
+                    <Link href="/eventsRJE" className="text-gray-500 hover:text-gray-700">
                         Cancel
                     </Link>
                 </div>
@@ -124,60 +142,47 @@ export default function CreateEventPage() {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit}>
-                        {/* Title */}
-                        <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Title</label>
-                            <input
-                                type="text"
-                                value={title}
-                                onChange={e => setTitle(e.target.value)}
-                                required
-                                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
-                            />
+                    {!currentUser?.juniorId ? (
+                        <div style={{ textAlign: 'center', padding: '32px' }}>
+                            <p style={{ color: '#6b7280' }}>Loading...</p>
                         </div>
+                    ) : (
+                        <form onSubmit={handleSubmit}>
+                            {/* Title */}
+                            <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Title</label>
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={e => setTitle(e.target.value)}
+                                    required
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+                                />
+                            </div>
 
-                        {/* Slug */}
-                        <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Slug</label>
-                            <input
-                                type="text"
-                                value={slug}
-                                onChange={e => setSlug(e.target.value)}
-                                required
-                                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db', background: '#f3f4f6' }}
-                            />
-                        </div>
+                            {/* Slug */}
+                            <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Slug</label>
+                                <input
+                                    type="text"
+                                    value={slug}
+                                    onChange={e => setSlug(e.target.value)}
+                                    required
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db', background: '#f3f4f6' }}
+                                />
+                                </div>
 
-                        {/* Junior Selection */}
-                        <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Junior</label>
-                            <select
-                                value={juniorId}
-                                onChange={e => setJuniorId(e.target.value)}
-                                required
-                                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
-                            >
-                                <option value="">Select a Junior</option>
-                                {juniors.map(junior => (
-                                    <option key={junior.id} value={junior.id}>
-                                        {junior.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Short Description */}
-                        <div style={{ marginBottom: '16px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Short Description</label>
-                            <textarea
-                                value={shortDescription}
-                                onChange={e => setShortDescription(e.target.value)}
-                                required
-                                rows={2}
-                                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
-                            />
-                        </div>
+                            {/* Short Description */}
+                            <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Short Description</label>
+                                <textarea
+                                    value={shortDescription}
+                                    onChange={e => setShortDescription(e.target.value)}
+                                    required
+                                    rows={2}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db' }}
+                                />
+                            </div>
 
                         {/* Full Description */}
                         <div style={{ marginBottom: '16px' }}>
@@ -251,15 +256,16 @@ export default function CreateEventPage() {
                         </div>
 
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="btn-create"
-                            style={{ width: '100%', marginTop: '16px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer' }}
-                        >
-                            {loading ? 'Creating...' : 'Create Event'}
-                        </button>
-                    </form>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="btn-create"
+                                style={{ width: '100%', marginTop: '16px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer' }}
+                            >
+                                {loading ? 'Creating...' : 'Create Event'}
+                            </button>
+                        </form>
+                    )}
                 </div>
             </div>
         </div>

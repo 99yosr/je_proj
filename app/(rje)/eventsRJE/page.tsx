@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
 
 type Event = {
@@ -19,33 +20,68 @@ type Event = {
     createdBy: { name: string; email: string }
 }
 
+type User = {
+    id: string
+    email: string
+    name: string
+    role: string
+    juniorId: number | null
+}
+
 export default function EventsPage() {
     const [events, setEvents] = useState<Event[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
 
     useEffect(() => {
-        const fetchEvents = async () => {
-            try {
-                const res = await fetch('/api/events', {
-                    credentials: 'include',
-                })
+        fetchCurrentUser()
+    }, [])
 
-                if (!res.ok) {
-                    throw new Error('Failed to fetch events')
-                }
+    const fetchCurrentUser = async () => {
+        try {
+            const res = await fetch('/api/auth/me', {
+                credentials: 'include',
+            })
 
-                const data = await res.json()
-                setEvents(data)
-            } catch (err) {
-                setError('Failed to load events')
-            } finally {
+            if (!res.ok) {
+                throw new Error('Not authenticated')
+            }
+
+            const userData = await res.json()
+            setCurrentUser(userData)
+
+            // Fetch events filtered by juniorId if user has one
+            if (userData.juniorId) {
+                await fetchEvents(userData.juniorId)
+            } else {
+                setError('You are not associated with any Junior Enterprise')
                 setLoading(false)
             }
+        } catch (err) {
+            setError('Failed to authenticate. Please login.')
+            setLoading(false)
         }
+    }
 
-        fetchEvents()
-    }, [])
+    const fetchEvents = async (juniorId: number) => {
+        try {
+            const res = await fetch(`/api/events?juniorId=${juniorId}`, {
+                credentials: 'include',
+            })
+
+            if (!res.ok) {
+                throw new Error('Failed to fetch events')
+            }
+
+            const data = await res.json()
+            setEvents(data)
+        } catch (err) {
+            setError('Failed to load events')
+        } finally {
+            setLoading(false)
+        }
+    }
 
     async function handleDelete(id: number) {
         if (!confirm('Are you sure you want to delete this event?')) return
@@ -59,6 +95,17 @@ export default function EventsPage() {
         } else {
             alert('Failed to delete event')
         }
+    }
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString)
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })
     }
 
     if (loading) {
@@ -88,14 +135,11 @@ export default function EventsPage() {
                 {/* Header */}
                 <div className="events-header">
                     <div>
-                        <h1 className="events-title">Events</h1>
+                        <h1 className="events-title">My Events</h1>
                         <p className="events-subtitle">
-                            Manage your upcoming events and activities
+                            Manage your Junior Enterprise events
                         </p>
                     </div>
-                    <Link href="/events/create" className="btn-create">
-                        + Create Event
-                    </Link>
                 </div>
 
                 {/* Table Card */}
@@ -104,11 +148,9 @@ export default function EventsPage() {
                         <table className="events-table">
                             <thead className="table-head">
                                 <tr>
-                                    <th className="table-header">Title</th>
-                                    <th className="table-header">Slug</th>
-                                    <th className="table-header">Media</th>
-                                    <th className="table-header">Junior</th>
-                                    <th className="table-header">Created By</th>
+                                    <th className="table-header">Event</th>
+                                    <th className="table-header">Date</th>
+                                    <th className="table-header">Location</th>
                                     <th className="table-header">Last Updated</th>
                                     <th className="table-header">Status</th>
                                     <th className="table-header table-header-right">Actions</th>
@@ -118,8 +160,8 @@ export default function EventsPage() {
                             <tbody>
                                 {events.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="empty-state">
-                                            No events found
+                                        <td colSpan={6} className="empty-state">
+                                            No events found. Create your first event!
                                         </td>
                                     </tr>
                                 ) : (
@@ -138,60 +180,48 @@ export default function EventsPage() {
                                                     </div>
                                                     <div>
                                                         <div className="event-title">{event.title}</div>
+                                                        <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                                                            {event.shortDescription.substring(0, 50)}
+                                                            {event.shortDescription.length > 50 && '...'}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
 
                                             <td className="table-cell">
-                                                <div className="text-sm text-gray-500">
-                                                    {event.slug}
+                                                <div style={{ fontSize: '14px', color: '#111827' }}>
+                                                    {event.date ? new Date(event.date).toLocaleDateString() : 'TBA'}
                                                 </div>
                                             </td>
 
                                             <td className="table-cell">
-                                                <div className="event-logo">
-                                                    {event.featuredMediaUrl ? (
-                                                        <img src={`${event.featuredMediaUrl}&t=${Date.now()}`} alt="Media" />
-                                                    ) : (
-                                                        <span className="logo-text">-</span>
-                                                    )}
+                                                <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                                                    {event.location || 'TBA'}
                                                 </div>
                                             </td>
 
                                             <td className="table-cell">
-                                                <div className="text-sm text-gray-900">
-                                                    {event.Junior?.name || 'Unknown'}
+                                                <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                                                    {new Date(event.updatedAt).toLocaleDateString()}
                                                 </div>
                                             </td>
 
                                             <td className="table-cell">
-                                                <div className="text-sm text-gray-500">
-                                                    {event.createdBy?.name || event.createdBy?.email || 'Unknown'}
-                                                </div>
-                                            </td>
-
-                                            <td className="table-cell">
-                                                <div className="text-sm text-gray-500">
-                                                    {new Date(event.updatedAt).toLocaleString()}
-                                                </div>
-                                            </td>
-
-                                            <td className="table-cell">
-                                                <span className={`status-badge ${event.isActive ? 'status-active' : 'status-inactive'
-                                                    }`}>
+                                                <span className={`status-badge ${event.isActive ? 'status-active' : 'status-inactive'}`}>
                                                     {event.isActive ? 'Active' : 'Inactive'}
                                                 </span>
                                             </td>
 
                                             <td className="table-cell actions-cell">
-                                                <Link href={`/events/${event.id}/edit`} className="btn-edit" style={{ textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}>
-                                                    Edit
+                                                <Link href={`/eventsRJE/${event.id}/edit`} className="btn-edit" title="Edit">
+                                                    <Pencil size={18} />
                                                 </Link>
                                                 <button
                                                     className="btn-delete"
                                                     onClick={() => handleDelete(event.id)}
+                                                    title="Delete"
                                                 >
-                                                    Delete
+                                                    <Trash2 size={18} />
                                                 </button>
                                             </td>
                                         </tr>
@@ -209,6 +239,21 @@ export default function EventsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Floating Add Button */}
+            <Link href="/eventsRJE/create" className="floating-add-button" title="Add new event">
+                <svg 
+                    width="24" 
+                    height="24" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                >
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </Link>
         </div>
     )
 }

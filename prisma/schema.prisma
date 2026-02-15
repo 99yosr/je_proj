@@ -75,6 +75,7 @@ model Junior {
   Event         Event[]
   FicheJE       FicheJE?
   Project       Project[]
+  News          News[]
   nbrmembres                       Int?      @default(0)
   user User?
 }
@@ -102,6 +103,8 @@ model News {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt 
   author    String?
+  juniorId  Int?
+  Junior    Junior?  @relation(fields: [juniorId], references: [id])
 }
 
 model Project {

@@ -7,10 +7,18 @@ export async function GET(req: NextRequest) {
     if (error) return error;
 
     try {
+        // Get juniorId from query params (optional filter)
+        const { searchParams } = new URL(req.url);
+        const juniorIdParam = searchParams.get('juniorId');
+        const juniorFilter = juniorIdParam ? { juniorId: parseInt(juniorIdParam) } : {};
+
         // 1. Fetch data for breakdown - this covers most of what we need
         const [projectBreakdown, eventBreakdown, globalStats] = await Promise.all([
             prisma.project.findMany({
-                where: { Feedback: { some: {} } },
+                where: { 
+                    ...juniorFilter,
+                    Feedback: { some: {} } 
+                },
                 select: {
                     id: true,
                     titre: true,
@@ -18,7 +26,10 @@ export async function GET(req: NextRequest) {
                 }
             }),
             prisma.event.findMany({
-                where: { Feedback: { some: {} } },
+                where: { 
+                    ...juniorFilter,
+                    Feedback: { some: {} } 
+                },
                 select: {
                     id: true,
                     title: true,
@@ -28,6 +39,12 @@ export async function GET(req: NextRequest) {
             prisma.feedback.aggregate({
                 _avg: { note: true },
                 _count: { id: true },
+                where: juniorIdParam ? {
+                    OR: [
+                        { Project: { juniorId: parseInt(juniorIdParam) } },
+                        { Event: { juniorId: parseInt(juniorIdParam) } }
+                    ]
+                } : {}
             })
         ]);
 
