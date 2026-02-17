@@ -1,3 +1,62 @@
+/**
+ * @openapi
+ * /api/users:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Get all users (admin only)
+ *     security:
+ *       - sessionAuth: []
+ *     responses:
+ *       "200":
+ *         description: List of users
+ *   put:
+ *     tags:
+ *       - Users
+ *     summary: Update a user (admin only)
+ *     security:
+ *       - sessionAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *               nbrmembres:
+ *                 type: integer
+ *     responses:
+ *       "200":
+ *         description: Updated user
+ *   delete:
+ *     tags:
+ *       - Users
+ *     summary: Delete a user (admin only)
+ *     security:
+ *       - sessionAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *     responses:
+ *       "200":
+ *         description: Deletion result
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 import { requireRole } from "../../../lib/auth";

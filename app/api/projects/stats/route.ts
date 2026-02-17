@@ -1,3 +1,30 @@
+/**
+ * @openapi
+ * /api/projects/stats:
+ *   get:
+ *     tags: [Projects]
+ *     summary: Get project counts grouped by year (optionally filter by juniorId)
+ *     parameters:
+ *       - in: query
+ *         name: juniorId
+ *         required: false
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Array of year/count objects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   year:
+ *                     type: integer
+ *                   count:
+ *                     type: integer
+ */
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 

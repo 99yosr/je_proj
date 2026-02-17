@@ -1,3 +1,37 @@
+/**
+ * @openapi
+ * /api/projects/revenu:
+ *   get:
+ *     tags: [Projects]
+ *     summary: Get total project revenue for a junior in a given year
+ *     parameters:
+ *       - in: query
+ *         name: juniorId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Revenue summary
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 juniorId:
+ *                   type: integer
+ *                 year:
+ *                   type: integer
+ *                 totalRevenu:
+ *                   type: number
+ *       400:
+ *         description: Missing parameters
+ */
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 

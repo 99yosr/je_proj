@@ -1,3 +1,70 @@
+/**
+ * @openapi
+ * /api/notifications:
+ *   get:
+ *     tags:
+ *       - Notifications
+ *     summary: Get notifications for a user
+ *     parameters:
+ *       - in: header
+ *         name: x-user-id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       "200":
+ *         description: List of notifications
+ *   post:
+ *     tags:
+ *       - Notifications
+ *     summary: Create a notification for a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               message:
+ *                 type: string
+ *     responses:
+ *       "200":
+ *         description: Created notification
+ *   put:
+ *     tags:
+ *       - Notifications
+ *     summary: Mark a notification as read
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *     responses:
+ *       "200":
+ *         description: Updated notification
+ *   delete:
+ *     tags:
+ *       - Notifications
+ *     summary: Delete a notification
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *     responses:
+ *       "200":
+ *         description: Deletion result
+ */
 import { NextRequest, NextResponse } from "next/server";
 import prisma from '@/lib/prisma';
 

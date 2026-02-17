@@ -1,3 +1,40 @@
+/**
+ * @openapi
+ * /api/profile:
+ *   get:
+ *     tags:
+ *       - Profile
+ *     summary: Get current authenticated user's profile
+ *     security:
+ *       - sessionAuth: []
+ *     responses:
+ *       "200":
+ *         description: User profile
+ *   put:
+ *     tags:
+ *       - Profile
+ *     summary: Update current user's profile
+ *     security:
+ *       - sessionAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               nbrmembres:
+ *                 type: integer
+ *     responses:
+ *       "200":
+ *         description: Updated profile
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 import { requireAuth } from "@/lib/auth";
