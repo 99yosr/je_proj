@@ -2,6 +2,60 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAuth } from "@/lib/auth";
 
+/**
+ * @openapi
+ * /api/messages:
+ *   get:
+ *     tags:
+ *       - Messages
+ *     summary: Get messages
+ *     description: Retrieves messages (sent or received) or conversation with specific user. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [sent, received]
+ *           default: received
+ *         description: Type of messages to retrieve
+ *       - in: query
+ *         name: otherUserId
+ *         schema:
+ *           type: string
+ *         description: User ID to get conversation with (overrides type parameter)
+ *     responses:
+ *       200:
+ *         description: List of messages
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 messages:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       content:
+ *                         type: string
+ *                       isRead:
+ *                         type: boolean
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       senderId:
+ *                         type: string
+ *                       receiverId:
+ *                         type: string
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
 // GET: Retrieve messages (sent or received)
 export async function GET(request: NextRequest) {
   const { error, user } = await requireAuth(request);
@@ -69,6 +123,51 @@ export async function GET(request: NextRequest) {
   }
 }
 
+/**
+ * @openapi
+ * /api/messages:
+ *   post:
+ *     tags:
+ *       - Messages
+ *     summary: Send a new message
+ *     description: Sends a message to another user. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - receiverId
+ *               - content
+ *             properties:
+ *               receiverId:
+ *                 type: string
+ *                 description: ID of the recipient user
+ *               content:
+ *                 type: string
+ *                 description: Message content
+ *     responses:
+ *       201:
+ *         description: Message sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: object
+ *       400:
+ *         description: Missing required fields
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Receiver not found
+ *       500:
+ *         description: Server error
+ */
 // POST: Send a new message
 export async function POST(request: NextRequest) {
   console.log('🔵 POST /api/messages - Request received');

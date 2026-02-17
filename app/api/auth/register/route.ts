@@ -12,6 +12,63 @@ type RegisterBody = {
   nbrmembres?: number
 }
 
+/**
+ * @openapi
+ * /api/auth/register:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: User registration
+ *     description: Creates a new user account
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - name
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 format: password
+ *               name:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [RJE, ADMIN]
+ *                 default: RJE
+ *               nbrmembres:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *       400:
+ *         description: Missing required fields
+ *       409:
+ *         description: Email already registered
+ *       500:
+ *         description: Server error
+ */
 export async function POST(req: NextRequest) {
   const body: RegisterBody = await req.json()
   const { email, password, name, role, nbrmembres } = body

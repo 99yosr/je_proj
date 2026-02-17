@@ -4,6 +4,68 @@ import { Prisma } from "@prisma/client";
 import { requireAuth } from "@/lib/auth";
 import { notifyAllAdmins } from "@/lib/socket";
 
+/**
+ * @openapi
+ * /api/activity:
+ *   post:
+ *     tags:
+ *       - Activity
+ *     summary: Create a new activity
+ *     description: Creates a new activity for a junior entreprise. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nom
+ *               - description
+ *               - juniorId
+ *             properties:
+ *               nom:
+ *                 type: string
+ *                 description: Activity name
+ *               description:
+ *                 type: string
+ *                 description: Activity description
+ *               juniorId:
+ *                 type: integer
+ *                 description: ID of the associated junior entreprise
+ *               image:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Optional image URL or path
+ *     responses:
+ *       201:
+ *         description: Activity created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 nom:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *                 image:
+ *                   type: string
+ *                   nullable: true
+ *                 juniorId:
+ *                   type: integer
+ *                 Junior:
+ *                   type: object
+ *       400:
+ *         description: Missing required fields
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
 export async function POST(req: NextRequest) {
   const { error, user } = await requireAuth(req);
   if (error) return error;
@@ -40,6 +102,50 @@ export async function POST(req: NextRequest) {
   }
 }
 
+/**
+ * @openapi
+ * /api/activity:
+ *   get:
+ *     tags:
+ *       - Activity
+ *     summary: Get all activities
+ *     description: Retrieves all activities, optionally filtered by juniorId. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: juniorId
+ *         schema:
+ *           type: integer
+ *         description: Filter activities by junior entreprise ID
+ *     responses:
+ *       200:
+ *         description: List of activities
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   nom:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   image:
+ *                     type: string
+ *                     nullable: true
+ *                   juniorId:
+ *                     type: integer
+ *                   Junior:
+ *                     type: object
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
 export async function GET(req: NextRequest) {
   const { error, user } = await requireAuth(req);
   if (error) return error;
@@ -60,6 +166,55 @@ export async function GET(req: NextRequest) {
   }
 }
 
+/**
+ * @openapi
+ * /api/activity:
+ *   put:
+ *     tags:
+ *       - Activity
+ *     summary: Update an activity
+ *     description: Updates an existing activity. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *             properties:
+ *               id:
+ *                 type: integer
+ *                 description: Activity ID to update
+ *               nom:
+ *                 type: string
+ *                 description: Activity name
+ *               description:
+ *                 type: string
+ *                 description: Activity description
+ *               juniorId:
+ *                 type: integer
+ *                 description: ID of the associated junior entreprise
+ *               image:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Image URL or path
+ *     responses:
+ *       200:
+ *         description: Activity updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Missing required fields
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
 export async function PUT(req: NextRequest) {
   const { error, user } = await requireAuth(req);
   if (error) return error;
@@ -96,6 +251,47 @@ export async function PUT(req: NextRequest) {
   }
 }
 
+/**
+ * @openapi
+ * /api/activity:
+ *   delete:
+ *     tags:
+ *       - Activity
+ *     summary: Delete an activity
+ *     description: Deletes an existing activity. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *             properties:
+ *               id:
+ *                 type: integer
+ *                 description: Activity ID to delete
+ *     responses:
+ *       200:
+ *         description: Activity deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Missing required fields
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Activity not found
+ *       500:
+ *         description: Server error
+ */
 export async function DELETE(req: NextRequest) {
   const { error, user } = await requireAuth(req);
   if (error) return error;

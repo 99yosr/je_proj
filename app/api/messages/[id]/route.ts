@@ -4,6 +4,41 @@ import { requireAuth } from "@/lib/auth";
 
 type Params = Promise<{ id: string }>
 
+/**
+ * @openapi
+ * /api/messages/{id}:
+ *   patch:
+ *     tags:
+ *       - Messages
+ *     summary: Mark message as read
+ *     description: Marks a specific message as read. Only the receiver can mark their own messages. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Message ID
+ *     responses:
+ *       200:
+ *         description: Message marked as read
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Invalid message ID
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - You can only mark your own messages as read
+ *       404:
+ *         description: Message not found
+ *       500:
+ *         description: Server error
+ */
 // PATCH: Mark message as read
 export async function PATCH(
   request: NextRequest,
