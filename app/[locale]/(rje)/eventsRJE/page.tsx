@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
+import SearchBar from '../../(admin)/components/SearchBar'
 
 type Event = {
     id: number
@@ -33,6 +34,19 @@ export default function EventsPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [currentUser, setCurrentUser] = useState<User | null>(null)
+    const [searchQuery, setSearchQuery] = useState('')
+
+    // Filter events based on search query
+    const filteredEvents = useMemo(() => {
+        if (!searchQuery) return events
+        
+        const query = searchQuery.toLowerCase()
+        return events.filter(event =>
+            event.title.toLowerCase().includes(query) ||
+            event.shortDescription.toLowerCase().includes(query) ||
+            (event.location && event.location.toLowerCase().includes(query))
+        )
+    }, [events, searchQuery])
 
     useEffect(() => {
         fetchCurrentUser()
@@ -142,6 +156,14 @@ export default function EventsPage() {
                     </div>
                 </div>
 
+                {/* Search Bar */}
+                <div className="mb-6">
+                    <SearchBar
+                        onSearch={setSearchQuery}
+                        placeholder="Search events by title, description, or location..."
+                    />
+                </div>
+
                 {/* Table Card */}
                 <div className="table-card">
                     <div className="table-wrapper">
@@ -158,14 +180,14 @@ export default function EventsPage() {
                             </thead>
 
                             <tbody>
-                                {events.length === 0 ? (
+                                {filteredEvents.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="empty-state">
-                                            No events found. Create your first event!
+                                            {searchQuery ? 'No events found matching your search.' : 'No events found. Create your first event!'}
                                         </td>
                                     </tr>
                                 ) : (
-                                    events.map(event => (
+                                    filteredEvents.map(event => (
                                         <tr key={event.id} className="table-row">
                                             <td className="table-cell">
                                                 <div className="event-info">

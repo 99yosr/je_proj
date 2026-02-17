@@ -170,6 +170,38 @@
   color: #dc2626;
 }
 
+.btn-feedback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: #10b981;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-feedback:hover {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.junior-tag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 2px 8px;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .table-footer {
   background: #f9fafb;
   padding: 16px 24px;
@@ -184,6 +216,11 @@
 .footer-count {
   font-weight: 500;
   color: #111827;
+}
+
+.filter-indicator {
+  color: #6b7280;
+  font-style: italic;
 }
 
 .empty-state {
@@ -504,9 +541,8 @@
   .filters-section {
     margin-bottom: 2rem;
     padding: 1rem;
-    background: white;
+    background: transparent;
     border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -547,4 +583,309 @@
     background: #3b82f6;
     border-radius: 50%;
   }
+}
+
+/* Dark Mode Styles */
+.dark .projects-page {
+  background: #111827;
+}
+
+.dark .loading-container {
+  background: #111827;
+}
+
+.dark .loading-text {
+  color: #9ca3af;
+}
+
+.dark .error-container {
+  background: #111827;
+}
+
+.dark .error-box {
+  background: #7f1d1d;
+  border-color: #991b1b;
+}
+
+.dark .error-text {
+  color: #fecaca;
+}
+
+.dark .projects-title {
+  color: #f9fafb;
+}
+
+.dark .projects-subtitle {
+  color: #9ca3af;
+}
+
+.dark .table-card {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.dark .table-head {
+  background: #374151;
+}
+
+.dark .table-header {
+  color: #9ca3af;
+  border-bottom-color: #4b5563;
+}
+
+.dark .table-row {
+  border-bottom-color: #374151;
+}
+
+.dark .table-row:hover {
+  background: #374151;
+}
+
+.dark .project-title,
+.dark .project-junior {
+  color: #f9fafb;
+}
+
+.dark .project-description-preview,
+.dark .project-date {
+  color: #9ca3af;
+}
+
+.dark .project-item-title,
+.dark .project-description,
+.dark .project-item-name,
+.dark .project-item-details {
+  color: #f9fafb;
+}
+
+.dark .project-client,
+.dark .project-revenue,
+.dark .project-date {
+  color: #9ca3af;
+}
+
+.dark .status-badge {
+  background: #374151;
+  color: #d1d5db;
+}
+
+.dark .status-pending {
+  background: #92400e;
+  color: #fcd34d;
+}
+
+.dark .status-in-progress {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.dark .status-completed {
+  background: #065f46;
+  color: #6ee7b7;
+}
+
+.dark .btn-edit {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.dark .btn-edit:hover {
+  background: #1e40af;
+  color: #bfdbfe;
+}
+
+.dark .btn-delete {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.dark .btn-delete:hover {
+  background: #991b1b;
+  color: #fecaca;
+}
+
+.dark .btn-feedback {
+  background: #065f46;
+  color: #6ee7b7;
+}
+
+.dark .btn-feedback:hover {
+  background: #047857;
+  color: #a7f3d0;
+}
+
+.dark .junior-tag {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.dark .table-footer {
+  background: #374151;
+  border-top-color: #4b5563;
+}
+
+.dark .footer-text {
+  color: #9ca3af;
+}
+
+.dark .footer-count {
+  color: #f9fafb;
+}
+
+.dark .filter-indicator {
+  color: #9ca3af;
+}
+
+.dark .empty-state {
+  color: #9ca3af;
+}
+
+.dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dark .modal-content {
+  background: #1f2937;
+}
+
+.dark .modal-header {
+  border-bottom-color: #374151;
+}
+
+.dark .modal-title {
+  color: #f9fafb;
+}
+
+.dark .modal-close {
+  color: #9ca3af;
+}
+
+.dark .modal-close:hover {
+  background: #374151;
+  color: #f9fafb;
+}
+
+.dark .form-label {
+  color: #d1d5db;
+}
+
+.dark .form-input,
+.dark .form-textarea,
+.dark select {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.dark .form-input:focus,
+.dark .form-textarea:focus,
+.dark select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.dark .modal-footer {
+  border-top-color: #374151;
+}
+
+.dark .btn-cancel {
+  background: #374151;
+  color: #d1d5db;
+  border-color: #4b5563;
+}
+
+.dark .btn-cancel:hover {
+  background: #4b5563;
+}
+
+.dark .filter-active-indicator {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.dark .filter-dot {
+  background: #60a5fa;
+}
+
+.dark .filters-section {
+  background: transparent;
+}
+
+.dark .clear-all-filters {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.dark .clear-all-filters:hover {
+  background: #991b1b;
+  color: #fecaca;
+}
+
+/* Checkbox styles */
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checkbox-input {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+.checkbox-label {
+  font-size: 0.875rem;
+  color: #374151;
+  user-select: none;
+  cursor: pointer;
+}
+
+.filters-grid {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.additional-filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.clear-filters-btn {
+  padding: 0.5rem 1rem;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clear-filters-btn:hover {
+  background: #fecaca;
+}
+
+.dark .checkbox-input {
+  accent-color: #60a5fa;
+}
+
+.dark .checkbox-label {
+  color: #d1d5db;
+}
+
+.dark .clear-filters-btn {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.dark .clear-filters-btn:hover {
+  background: #991b1b;
+  color: #fecaca;
 }

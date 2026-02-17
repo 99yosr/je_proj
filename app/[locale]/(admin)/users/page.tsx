@@ -5,6 +5,7 @@ import { Pencil, Trash2, Plus, X } from 'lucide-react'
 import './style.css'
 import UsersSortControls, { useSortUsers } from '../components/UsersSort'
 import { useSearch } from '../components/SearchContext'
+import SearchBar from '../components/SearchBar'
 
 type User = {
   id: string
@@ -27,7 +28,7 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [formData, setFormData] = useState<UserFormData>({ name: '', email: '', role: 'USER' })
   const [submitting, setSubmitting] = useState(false)
-  const { searchQuery } = useSearch()
+  const { searchQuery, setSearchQuery } = useSearch()
 
   // Filter users based on search query
   const filteredUsers = useMemo(() => {
@@ -146,6 +147,14 @@ export default function UsersPage() {
         <div className="users-header">
           <h1 className="users-title">Users</h1>
           <p className="users-subtitle">Manage your team members and their account permissions</p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchBar
+            onSearch={setSearchQuery}
+            placeholder="Search users by name, email, or role..."
+          />
         </div>
 
         {/* Table */}

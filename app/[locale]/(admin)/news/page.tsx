@@ -5,6 +5,7 @@ import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
 import NewsSortControls, { useSortNews } from '../components/NewsSort'
 import { useSearch } from '../components/SearchContext'
+import SearchBar from '../components/SearchBar'
 
 type News = {
   id: number
@@ -47,7 +48,7 @@ export default function NewsPage() {
     uploading: false
   })
   const [submitting, setSubmitting] = useState(false)
-  const { searchQuery } = useSearch()
+  const { searchQuery, setSearchQuery } = useSearch()
 
   // Filter news based on search query
   const filteredNews = useMemo(() => {
@@ -302,6 +303,14 @@ export default function NewsPage() {
           <p className="news-subtitle">
             Manage news articles and announcements
           </p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchBar
+            onSearch={setSearchQuery}
+            placeholder="Search news by title, content, or author..."
+          />
         </div>
 
         {/* Table Card */}

@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
+import SearchBar from '../../(admin)/components/SearchBar'
 
 type News = {
   id: number
@@ -59,6 +60,19 @@ export default function NewsJEPage() {
     uploading: false
   })
   const [submitting, setSubmitting] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Filter news based on search query
+  const filteredNews = useMemo(() => {
+    if (!searchQuery) return news
+    
+    const query = searchQuery.toLowerCase()
+    return news.filter(item =>
+      item.title.toLowerCase().includes(query) ||
+      item.content.toLowerCase().includes(query) ||
+      (item.author && item.author.toLowerCase().includes(query))
+    )
+  }, [news, searchQuery])
 
   useEffect(() => {
     fetchCurrentUser()
@@ -325,6 +339,14 @@ export default function NewsJEPage() {
         </div>
       </div>
 
+      {/* Search Bar */}
+      <div className="mb-6">
+        <SearchBar
+          onSearch={setSearchQuery}
+          placeholder="Search news by title, content, or author..."
+        />
+      </div>
+
       <div className="table-container">
         <table className="data-table">
           <thead>
@@ -336,14 +358,14 @@ export default function NewsJEPage() {
             </tr>
           </thead>
           <tbody>
-            {news.length === 0 ? (
+            {filteredNews.length === 0 ? (
               <tr>
                 <td colSpan={4} className="empty-state">
-                  <p>No news articles yet. Create your first one!</p>
+                  <p>{searchQuery ? 'No news found matching your search.' : 'No news articles yet. Create your first one!'}</p>
                 </td>
               </tr>
             ) : (
-              news.map((item) => (
+              filteredNews.map((item) => (
                 <tr key={item.id}>
                   <td className="title-cell">{item.title}</td>
                   <td>{item.author || 'Anonymous'}</td>

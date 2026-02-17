@@ -322,3 +322,109 @@
     right: 24px;
   }
 }
+
+/* Dark Mode Styles */
+.dark .events-page {
+  background: #111827;
+}
+
+.dark .loading-container {
+  background: #111827;
+}
+
+.dark .loading-text {
+  color: #9ca3af;
+}
+
+.dark .error-container {
+  background: #111827;
+}
+
+.dark .error-box {
+  background: #7f1d1d;
+  border-color: #991b1b;
+}
+
+.dark .error-text {
+  color: #fecaca;
+}
+
+.dark .events-title {
+  color: #f9fafb;
+}
+
+.dark .events-subtitle {
+  color: #9ca3af;
+}
+
+.dark .table-card {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.dark .table-head {
+  background: #374151;
+}
+
+.dark .table-header {
+  color: #9ca3af;
+  border-bottom-color: #4b5563;
+}
+
+.dark .table-row {
+  border-bottom-color: #374151;
+}
+
+.dark .table-row:hover {
+  background: #374151;
+}
+
+.dark .event-title,
+.dark .event-location,
+.dark .event-organizer {
+  color: #f9fafb;
+}
+
+.dark .event-date,
+.dark .event-details {
+  color: #9ca3af;
+}
+
+.dark .btn-view,
+.dark .btn-edit {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.dark .btn-view:hover,
+.dark .btn-edit:hover {
+  background: #1e40af;
+  color: #bfdbfe;
+}
+
+.dark .btn-delete {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.dark .btn-delete:hover {
+  background: #991b1b;
+  color: #fecaca;
+}
+
+.dark .table-footer {
+  background: #374151;
+  border-top-color: #4b5563;
+}
+
+.dark .footer-text {
+  color: #9ca3af;
+}
+
+.dark .footer-count {
+  color: #f9fafb;
+}
+
+.dark .empty-state {
+  color: #9ca3af;
+}

@@ -5,7 +5,8 @@ import { Pencil, Trash2, Search } from 'lucide-react'
 import './style.css'
 import ActivitySortControls, { useSortActivity } from '../components/ActivitySort'
 import { useSearch } from '../components/SearchContext'
-import Filter from '../../../components/Filter' // Import du filtre
+import Filter from '../../../components/Filter'
+import SearchBar from '../components/SearchBar'
 
 type Activity = {
   id: number
@@ -59,12 +60,8 @@ export default function ActivityPage() {
 
   // États pour le filtrage
   const [selectedJuniorFilter, setSelectedJuniorFilter] = useState<number | null>(null)
-  const [localSearchQuery, setLocalSearchQuery] = useState('')
 
   const { searchQuery, setSearchQuery } = useSearch()
-
-  // Combiner la recherche locale et globale
-  const combinedSearchQuery = localSearchQuery || searchQuery
 
   // Filter activities based on search query and junior filter
   const filteredActivities = useMemo(() => {
@@ -76,8 +73,8 @@ export default function ActivityPage() {
     }
 
     // Filtre par search query
-    if (combinedSearchQuery) {
-      const query = combinedSearchQuery.toLowerCase()
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
       data = data.filter(activity =>
         activity.nom.toLowerCase().includes(query) ||
         activity.description.toLowerCase().includes(query) ||
@@ -86,7 +83,7 @@ export default function ActivityPage() {
     }
 
     return data
-  }, [activities, combinedSearchQuery, selectedJuniorFilter])
+  }, [activities, searchQuery, selectedJuniorFilter])
 
   // Apply sorting to filtered activities
   const { sortedData, sortColumn, sortDirection, handleSort } = useSortActivity(filteredActivities)
@@ -335,7 +332,6 @@ export default function ActivityPage() {
 
   const handleResetFilters = () => {
     setSelectedJuniorFilter(null)
-    setLocalSearchQuery('')
     setSearchQuery('')
   }
 
@@ -353,7 +349,7 @@ export default function ActivityPage() {
   }))
 
   // Vérifier si des filtres sont actifs
-  const isAnyFilterActive = selectedJuniorFilter || combinedSearchQuery
+  const isAnyFilterActive = selectedJuniorFilter || searchQuery
 
   if (loading) {
     return (
@@ -387,30 +383,17 @@ export default function ActivityPage() {
           </p>
         </div>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchBar
+            onSearch={setSearchQuery}
+            placeholder="Search activities by name, description, or junior..."
+          />
+        </div>
+
         {/* Section de filtrage */}
         <div className="filters-section">
           <div className="filters-row">
-            {/* Filtre de recherche */}
-            <div className="search-filter-container">
-              <div className="filter-label">
-                <Search size={16} />
-                <span>SEARCH</span>
-              </div>
-              <div className="search-input-wrapper">
-
-                {combinedSearchQuery && (
-                  <button
-                    className="clear-search-button"
-                    onClick={handleClearSearch}
-                    title="Clear search"
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Filtre par junior */}
             <Filter
               title="JUNIOR"
               items={juniorItemsForFilter}

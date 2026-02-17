@@ -501,3 +501,188 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Dark Mode Styles */
+.dark .projects-page {
+  background: #111827;
+}
+
+.dark .loading-container {
+  background: #111827;
+}
+
+.dark .loading-text {
+  color: #9ca3af;
+}
+
+.dark .error-container {
+  background: #111827;
+}
+
+.dark .error-box {
+  background: #7f1d1d;
+  border-color: #991b1b;
+}
+
+.dark .error-text {
+  color: #fecaca;
+}
+
+.dark .projects-title {
+  color: #f9fafb;
+}
+
+.dark .projects-subtitle {
+  color: #9ca3af;
+}
+
+.dark .table-card {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.dark .table-head {
+  background: #374151;
+}
+
+.dark .table-header {
+  color: #9ca3af;
+  border-bottom-color: #4b5563;
+}
+
+.dark .table-row {
+  border-bottom-color: #374151;
+}
+
+.dark .table-row:hover {
+  background: #374151;
+}
+
+.dark .project-title,
+.dark .project-junior {
+  color: #f9fafb;
+}
+
+.dark .project-description-preview,
+.dark .project-client,
+.dark .project-revenue,
+.dark .project-date {
+  color: #9ca3af;
+}
+
+.dark .status-badge {
+  background: #374151;
+  color: #d1d5db;
+}
+
+.dark .status-approved {
+  background: #065f46;
+  color: #6ee7b7;
+}
+
+.dark .status-pending {
+  background: #92400e;
+  color: #fcd34d;
+}
+
+.dark .status-rejected {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.dark .btn-view,
+.dark .btn-edit {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.dark .btn-view:hover,
+.dark .btn-edit:hover {
+  background: #1e40af;
+  color: #bfdbfe;
+}
+
+.dark .btn-delete {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.dark .btn-delete:hover {
+  background: #991b1b;
+  color: #fecaca;
+}
+
+.dark .table-footer {
+  background: #374151;
+  border-top-color: #4b5563;
+}
+
+.dark .footer-text {
+  color: #9ca3af;
+}
+
+.dark .footer-count {
+  color: #f9fafb;
+}
+
+.dark .empty-state {
+  color: #9ca3af;
+}
+
+.dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dark .modal-content {
+  background: #1f2937;
+}
+
+.dark .modal-header {
+  border-bottom-color: #374151;
+}
+
+.dark .modal-title {
+  color: #f9fafb;
+}
+
+.dark .modal-close {
+  color: #9ca3af;
+}
+
+.dark .modal-close:hover {
+  background: #374151;
+  color: #f9fafb;
+}
+
+.dark .form-label {
+  color: #d1d5db;
+}
+
+.dark .form-input,
+.dark .form-textarea,
+.dark select {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.dark .form-input:focus,
+.dark .form-textarea:focus,
+.dark select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.dark .modal-footer {
+  border-top-color: #374151;
+}
+
+.dark .btn-cancel {
+  background: #374151;
+  color: #d1d5db;
+  border-color: #4b5563;
+}
+
+.dark .btn-cancel:hover {
+  background: #4b5563;
+}

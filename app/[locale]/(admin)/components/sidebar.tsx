@@ -60,22 +60,22 @@ export default function Sidebar() {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden" onClick={() => setIsOpen(false)} />
+        <div className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-sm z-40 lg:hidden" onClick={() => setIsOpen(false)} />
       )}
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-sm border border-gray-200 lg:hidden text-gray-600"
+        className="fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 lg:hidden text-gray-600 dark:text-gray-300"
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static shadow-sm ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static shadow-sm ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        <div className="flex h-16 items-center border-b border-gray-100 px-6">
-          <span className="text-xl font-bold text-gray-900">
-            JET<span className="text-[#E60000]">unisie</span>
+        <div className="flex h-16 items-center border-b border-gray-100 dark:border-gray-700 px-6">
+          <span className="text-xl font-bold text-gray-900 dark:text-white">
+            JET<span className="text-[#E60000] dark:text-red-500">unisie</span>
           </span>
         </div>
 
@@ -87,8 +87,8 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all relative ${isActive
-                  ? 'bg-red-50 text-[#E60000]'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-red-50 dark:bg-red-900/20 text-[#E60000] dark:text-red-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200'
                   }`}
                 onClick={() => {
                   setIsOpen(false);
@@ -97,10 +97,10 @@ export default function Sidebar() {
                   }
                 }}
               >
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-[#E60000]' : 'text-gray-400 group-hover:text-gray-600'}`} />
+                <item.icon className={`w-5 h-5 ${isActive ? 'text-[#E60000] dark:text-red-400' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300'}`} />
                 {item.label}
                 {item.badge && item.badge > 0 && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 bg-[#E60000] text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 bg-[#E60000] dark:bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
                     {item.badge > 99 ? '99+' : item.badge}
                   </span>
                 )}

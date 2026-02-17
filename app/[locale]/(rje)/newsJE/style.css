@@ -404,3 +404,154 @@
     right: 24px;
   }
 }
+
+/* Dark Mode Styles */
+.dark .page-container {
+  background: #111827;
+}
+
+.dark .loading-container {
+  background: #111827;
+}
+
+.dark .loading-text {
+  color: #9ca3af;
+}
+
+.dark .error-container {
+  background: #111827;
+}
+
+.dark .error-box {
+  background: #7f1d1d;
+  border-color: #991b1b;
+}
+
+.dark .error-text {
+  color: #fecaca;
+}
+
+.dark .page-title {
+  color: #f9fafb;
+}
+
+.dark .page-subtitle {
+  color: #9ca3af;
+}
+
+.dark .table-container {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.dark .data-table thead {
+  background: #374151;
+}
+
+.dark .data-table th {
+  color: #9ca3af;
+  border-bottom-color: #4b5563;
+}
+
+.dark .data-table tbody tr {
+  border-bottom-color: #374151;
+}
+
+.dark .data-table tbody tr:hover {
+  background: #374151;
+}
+
+.dark .title-cell,
+.dark .data-table td {
+  color: #f9fafb;
+}
+
+.dark .btn-icon {
+  background: #374151;
+  color: #9ca3af;
+}
+
+.dark .btn-icon:hover {
+  background: #4b5563;
+  color: #f9fafb;
+}
+
+.dark .btn-edit {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.dark .btn-edit:hover {
+  background: #1e40af;
+  color: #bfdbfe;
+}
+
+.dark .btn-delete {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.dark .btn-delete:hover {
+  background: #991b1b;
+  color: #fecaca;
+}
+
+.dark .empty-state {
+  color: #9ca3af;
+}
+
+.dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dark .modal-content {
+  background: #1f2937;
+}
+
+.dark .modal-header {
+  border-bottom-color: #374151;
+}
+
+.dark .modal-title {
+  color: #f9fafb;
+}
+
+.dark .modal-close-btn {
+  color: #9ca3af;
+}
+
+.dark .modal-close-btn:hover {
+  background: #374151;
+  color: #f9fafb;
+}
+
+.dark .modal-form label {
+  color: #d1d5db;
+}
+
+.dark .modal-form input,
+.dark .modal-form textarea {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.dark .modal-form input:focus,
+.dark .modal-form textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.dark .modal-footer {
+  border-top-color: #374151;
+}
+
+.dark .btn-cancel {
+  background: #374151;
+  color: #d1d5db;
+  border-color: #4b5563;
+}
+
+.dark .btn-cancel:hover {
+  background: #4b5563;
+}

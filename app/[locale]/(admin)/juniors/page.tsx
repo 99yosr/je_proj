@@ -5,6 +5,7 @@ import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
 import JuniorsSortControls, { useSortJuniors } from '../components/JuniorsSort'
 import { useSearch } from '../components/SearchContext'
+import SearchBar from '../components/SearchBar'
 
 type Junior = {
   id: number
@@ -47,7 +48,7 @@ export default function JuniorsPage() {
     uploading: false
   })
   const [submitting, setSubmitting] = useState(false)
-  const { searchQuery } = useSearch()
+  const { searchQuery, setSearchQuery } = useSearch()
 
   // Filter juniors based on search query
   const filteredJuniors = useMemo(() => {
@@ -302,6 +303,14 @@ export default function JuniorsPage() {
           <p className="juniors-subtitle">
             Manage junior enterprises and their information
           </p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchBar
+            onSearch={setSearchQuery}
+            placeholder="Search juniors by name, role, city, or email..."
+          />
         </div>
 
         {/* Table Card */}

@@ -1,3 +1,277 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Dark Mode Overrides for Dashboard Pages */
+@layer components {
+  /* Page layouts */
+  .dark .users-page,
+  .dark .projects-page,
+  .dark .news-page,
+  .dark .juniors-page,
+  .dark .activity-page,
+  .dark .events-page,
+  .dark .messages-page,
+  .dark .page-container {
+    background: #111827;
+  }
+
+  /* Headers */
+  .dark .users-title,
+  .dark .projects-title,
+  .dark .news-title,
+  .dark .juniors-title,
+  .dark .activity-title,
+  .dark .events-title,
+  .dark .page-title {
+    color: #f3f4f6;
+  }
+
+  .dark .users-subtitle,
+  .dark .projects-subtitle,
+  .dark .news-subtitle,
+  .dark .juniors-subtitle,
+  .dark .activity-subtitle,
+  .dark .events-subtitle,
+  .dark .page-subtitle {
+    color: #9ca3af;
+  }
+
+  /* Table Cards */
+  .dark .table-card,
+  .dark .filters-card,
+  .dark .table-container {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .dark .table-head {
+    background: #111827;
+  }
+
+  .dark .table-header {
+    color: #9ca3af;
+    border-color: #374151;
+  }
+
+  .dark .table-row {
+    border-color: #374151;
+  }
+
+  .dark .table-row:hover {
+    background: #1f2937;
+  }
+
+  .dark .table-cell {
+    color: #f3f4f6;
+  }
+
+  .dark .empty-state {
+    color: #9ca3af;
+  }
+
+  /* Status badges */
+  .dark .status-badge {
+    color: #f3f4f6;
+  }
+
+  /* Buttons */
+  .dark .action-button,
+  .dark button {
+    border-color: #374151;
+  }
+
+  .dark .action-button:hover {
+    background: #374151;
+  }
+
+  /* Loading states */
+  .dark .loading-container {
+    background: #111827;
+  }
+
+  .dark .loading-text {
+    color: #9ca3af;
+  }
+
+  /* Error states */
+  .dark .error-container {
+    background: #111827;
+  }
+
+  .dark .error-box {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .dark .error-text {
+    color: #f87171;
+  }
+
+  /* Forms and Inputs */
+  .dark input[type="text"],
+  .dark input[type="email"],
+  .dark input[type="password"],
+  .dark input[type="date"],
+  .dark input[type="number"],
+  .dark textarea,
+  .dark select,
+  .dark .filter-input,
+  .dark .filter-select {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #6b7280;
+  }
+
+  .dark input:focus,
+  .dark textarea:focus,
+  .dark select:focus {
+    border-color: #3b82f6;
+  }
+
+  /* Labels */
+  .dark label,
+  .dark .filter-label {
+    color: #f3f4f6;
+  }
+
+  /* Modals */
+  .dark .modal-overlay {
+    background: rgba(0, 0, 0, 0.75);
+  }
+
+  .dark .modal-content {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .dark .modal-title {
+    color: #f3f4f6;
+  }
+
+  /* Filters */
+  .dark .filters-section {
+    background: transparent;
+  }
+
+  .dark .filter-group {
+    color: #f3f4f6;
+  }
+
+  .dark .clear-filters-btn,
+  .dark .reset-filters-button {
+    background: #374151;
+    color: #f3f4f6;
+    border-color: #4b5563;
+  }
+
+  .dark .clear-filters-btn:hover,
+  .dark .reset-filters-button:hover {
+    background: #4b5563;
+  }
+
+  /* User/Project specific elements */
+  .dark .user-name,
+  .dark .project-title,
+  .dark .event-title,
+  .dark .activity-item-title,
+  .dark .news-title-cell,
+  .dark .title-cell {
+    color: #f3f4f6;
+  }
+
+  .dark .user-email,
+  .dark .project-description-preview,
+  .dark .event-description,
+  .dark .text-sm {
+    color: #9ca3af;
+  }
+
+  /* Messages */
+  .dark .users-list {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .dark .users-list-title {
+    color: #f3f4f6;
+  }
+
+  .dark .user-item {
+    border-color: #374151;
+  }
+
+  .dark .user-item:hover,
+  .dark .user-item.active {
+    background: #374151;
+  }
+
+  .dark .conversation {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .dark .conversation-header {
+    background: #111827;
+    border-color: #374151;
+  }
+
+  .dark .message-bubble.sent {
+    background: #3b82f6;
+  }
+
+  .dark .message-bubble.received {
+    background: #374151;
+    color: #f3f4f6;
+  }
+
+  .dark .message-input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+  }
+
+  /* Charts and Stats */
+  .dark .chart-card {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .dark .stat-card {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .dark .stat-label {
+    color: #9ca3af;
+  }
+
+  .dark .stat-value {
+    color: #f3f4f6;
+  }
+
+  /* Notifications */
+  .dark .notification-item {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .dark .notification-item:hover {
+    background: #374151;
+  }
+
+  .dark .notification-title {
+    color: #f3f4f6;
+  }
+
+  .dark .notification-text {
+    color: #9ca3af;
+  }
+}
+
+
