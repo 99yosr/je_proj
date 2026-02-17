@@ -1,3 +1,31 @@
+/**
+ * @openapi
+ * /api/update_info_jets:
+ *   put:
+ *     tags:
+ *       - Update Info Jets
+ *     summary: Update FicheJE information for a junior
+ *     security:
+ *       - sessionAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               juniorId:
+ *                 type: integer
+ *               nomJE:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               contact:
+ *                 type: string
+ *     responses:
+ *       "200":
+ *         description: Updated FicheJE
+ */
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma"; 
 import { Prisma } from "@prisma/client";

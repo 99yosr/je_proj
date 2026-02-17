@@ -1,3 +1,24 @@
+/**
+ * @openapi
+ * /api/upload:
+ *   post:
+ *     tags:
+ *       - Upload
+ *     summary: Upload a file (image or PDF)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       "200":
+ *         description: Upload result with file URL and metadata
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';

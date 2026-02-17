@@ -1,3 +1,50 @@
+/**
+ * @openapi
+ * /api/projects:
+ *   get:
+ *     tags:
+ *       - Projects
+ *     summary: Get list of projects, optional filter by juniorId
+ *     parameters:
+ *       - in: query
+ *         name: juniorId
+ *         schema:
+ *           type: integer
+ *         required: false
+ *     responses:
+ *       "200":
+ *         description: List of projects
+ *   post:
+ *     tags:
+ *       - Projects
+ *     summary: Create a new project (authenticated)
+ *     security:
+ *       - sessionAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               titre:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               statut:
+ *                 type: string
+ *               dateDebut:
+ *                 type: string
+ *               dateFin:
+ *                 type: string
+ *               juniorId:
+ *                 type: integer
+ *               image:
+ *                 type: string
+ *     responses:
+ *       "201":
+ *         description: Created project
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAuth } from "@/lib/auth";
