@@ -2,6 +2,60 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
+/**
+ * @openapi
+ * /api/getFeedback:
+ *   get:
+ *     tags:
+ *       - Feedback
+ *     summary: Get feedback statistics for current user's junior
+ *     description: Retrieves feedback statistics (global, projects, and events) for the junior entreprise linked to the authenticated user
+ *     security:
+ *       - sessionAuth: []
+ *     responses:
+ *       200:
+ *         description: Feedback statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 global:
+ *                   type: object
+ *                   properties:
+ *                     average:
+ *                       type: number
+ *                     count:
+ *                       type: integer
+ *                 projects:
+ *                   type: object
+ *                   properties:
+ *                     overallAverage:
+ *                       type: number
+ *                     totalCount:
+ *                       type: integer
+ *                     breakdown:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                 events:
+ *                   type: object
+ *                   properties:
+ *                     overallAverage:
+ *                       type: number
+ *                     totalCount:
+ *                       type: integer
+ *                     breakdown:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: No junior linked to user
+ *       500:
+ *         description: Server error
+ */
 export async function GET(req: NextRequest) {
   try {
     // 1️⃣ Get logged-in user session

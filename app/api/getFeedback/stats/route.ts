@@ -2,6 +2,66 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 
+/**
+ * @openapi
+ * /api/getFeedback/stats:
+ *   get:
+ *     tags:
+ *       - Feedback
+ *     summary: Get feedback statistics (Admin/RJE)
+ *     description: Retrieves feedback statistics with optional junior filter. Requires RJE or ADMIN role.
+ *     security:
+ *       - sessionAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: juniorId
+ *         schema:
+ *           type: integer
+ *         description: Optional filter by junior entreprise ID
+ *     responses:
+ *       200:
+ *         description: Feedback statistics with breakdown
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 global:
+ *                   type: object
+ *                   properties:
+ *                     average:
+ *                       type: number
+ *                     count:
+ *                       type: integer
+ *                 projects:
+ *                   type: object
+ *                   properties:
+ *                     overallAverage:
+ *                       type: number
+ *                     totalCount:
+ *                       type: integer
+ *                     breakdown:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                 events:
+ *                   type: object
+ *                   properties:
+ *                     overallAverage:
+ *                       type: number
+ *                     totalCount:
+ *                       type: integer
+ *                     breakdown:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - RJE or ADMIN role required
+ *       500:
+ *         description: Server error
+ */
 export async function GET(req: NextRequest) {
     const { error, user } = await requireRole(req, ['RJE', 'ADMIN']);
     if (error) return error;

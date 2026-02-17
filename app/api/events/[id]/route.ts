@@ -5,6 +5,56 @@ import { notifyAllAdmins } from '../../../../lib/socket';
 
 type Params = Promise<{ id: string }>
 
+/**
+ * @openapi
+ * /api/events/{id}:
+ *   get:
+ *     tags:
+ *       - Events
+ *     summary: Get event by ID
+ *     description: Retrieves a single event by its ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Event ID
+ *     responses:
+ *       200:
+ *         description: Event details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 title:
+ *                   type: string
+ *                 slug:
+ *                   type: string
+ *                 shortDescription:
+ *                   type: string
+ *                 fullDescription:
+ *                   type: string
+ *                 date:
+ *                   type: string
+ *                   format: date-time
+ *                   nullable: true
+ *                 location:
+ *                   type: string
+ *                 isActive:
+ *                   type: boolean
+ *                 juniorId:
+ *                   type: integer
+ *       400:
+ *         description: Invalid ID
+ *       404:
+ *         description: Event not found
+ *       500:
+ *         description: Server error
+ */
 export async function GET(req: NextRequest, { params }: { params: Params }) {
     try {
         const { id } = await params;
@@ -38,6 +88,64 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
     }
 }
 
+/**
+ * @openapi
+ * /api/events/{id}:
+ *   put:
+ *     tags:
+ *       - Events
+ *     summary: Update an event
+ *     description: Updates an existing event. Can update logo and featured media. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Event ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               slug:
+ *                 type: string
+ *               shortDescription:
+ *                 type: string
+ *               fullDescription:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date-time
+ *               location:
+ *                 type: string
+ *               isActive:
+ *                 type: string
+ *                 enum: ["true", "false"]
+ *               logoFile:
+ *                 type: string
+ *                 format: binary
+ *               featuredMediaFile:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Event updated successfully
+ *       400:
+ *         description: Invalid ID or slug already exists
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Event not found
+ *       500:
+ *         description: Server error
+ */
 export async function PUT(req: NextRequest, { params }: { params: Params }) {
     try {
         // Require authentication
@@ -136,6 +244,42 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
     }
 }
 
+/**
+ * @openapi
+ * /api/events/{id}:
+ *   delete:
+ *     tags:
+ *       - Events
+ *     summary: Delete an event
+ *     description: Deletes an existing event. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Event ID
+ *     responses:
+ *       200:
+ *         description: Event deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Invalid ID
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Event not found
+ *       500:
+ *         description: Server error
+ */
 export async function DELETE(req: NextRequest, { params }: { params: Params }) {
     try {
         // Require authentication

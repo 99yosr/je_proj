@@ -2,6 +2,47 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAuth } from "@/lib/auth";
 
+/**
+ * @openapi
+ * /api/messages/mark-read:
+ *   post:
+ *     tags:
+ *       - Messages
+ *     summary: Mark all messages from sender as read
+ *     description: Marks all unread messages from a specific sender as read. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - senderId
+ *             properties:
+ *               senderId:
+ *                 type: string
+ *                 description: ID of the sender whose messages to mark as read
+ *     responses:
+ *       200:
+ *         description: Messages marked as read
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 markedCount:
+ *                   type: integer
+ *       400:
+ *         description: Missing senderId
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
 // POST: Mark all messages from a sender as read
 export async function POST(request: NextRequest) {
   const { error, user } = await requireAuth(request);

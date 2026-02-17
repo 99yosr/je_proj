@@ -3,6 +3,59 @@ import prisma from '../../../lib/prisma';
 import { requireAuth } from '../../../lib/auth';
 import { notifyAllAdmins } from '../../../lib/socket';
 
+/**
+ * @openapi
+ * /api/events:
+ *   get:
+ *     tags:
+ *       - Events
+ *     summary: Get all events
+ *     description: Retrieves all events, optionally filtered by juniorId
+ *     parameters:
+ *       - in: query
+ *         name: juniorId
+ *         schema:
+ *           type: integer
+ *         description: Filter events by junior entreprise ID
+ *     responses:
+ *       200:
+ *         description: List of events
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   title:
+ *                     type: string
+ *                   slug:
+ *                     type: string
+ *                   shortDescription:
+ *                     type: string
+ *                   fullDescription:
+ *                     type: string
+ *                   date:
+ *                     type: string
+ *                     format: date-time
+ *                     nullable: true
+ *                   location:
+ *                     type: string
+ *                   isActive:
+ *                     type: boolean
+ *                   juniorId:
+ *                     type: integer
+ *                   logoUrl:
+ *                     type: string
+ *                     nullable: true
+ *                   featuredMediaUrl:
+ *                     type: string
+ *                     nullable: true
+ *       500:
+ *         description: Server error
+ */
 export async function GET(req: NextRequest) {
     try {
         // Get juniorId from query params (optional filter)
@@ -26,8 +79,8 @@ export async function GET(req: NextRequest) {
                 // Only select MIME types to check if images exist (not the binary data!)
                 logoMimeType: true,
                 featuredMediaMimeType: true,
-                User: { select: { name: true, email: true } },
-                Junior: { select: { name: true } },
+                user: { select: { name: true, email: true } },
+                junior: { select: { name: true } },
             },
             orderBy: { updatedAt: 'desc' },
         });
@@ -36,9 +89,9 @@ export async function GET(req: NextRequest) {
         const transformedEvents = events.map((event: any) => ({
             ...event,
             // Rename relation fields to expected frontend names
-            createdBy: event.User,
-            junior: event.Junior,
-            User: undefined,
+            createdBy: event.user,
+            junior: event.junior,
+            user: undefined,
             Junior: undefined,
             logoUrl: event.logoMimeType ? `/api/events/${event.id}/image?type=logo` : null,
             featuredMediaUrl: event.featuredMediaMimeType ? `/api/events/${event.id}/image?type=featured` : null,
@@ -54,6 +107,62 @@ export async function GET(req: NextRequest) {
     }
 }
 
+/**
+ * @openapi
+ * /api/events:
+ *   post:
+ *     tags:
+ *       - Events
+ *     summary: Create a new event
+ *     description: Creates a new event with optional logo and featured media. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - slug
+ *               - shortDescription
+ *               - fullDescription
+ *               - juniorId
+ *             properties:
+ *               title:
+ *                 type: string
+ *               slug:
+ *                 type: string
+ *               shortDescription:
+ *                 type: string
+ *               fullDescription:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date-time
+ *               location:
+ *                 type: string
+ *               juniorId:
+ *                 type: string
+ *               logoFile:
+ *                 type: string
+ *                 format: binary
+ *               featuredMediaFile:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Event created successfully
+ *       400:
+ *         description: Missing required fields
+ *       401:
+ *         description: Unauthorized
+ *       409:
+ *         description: Slug already exists
+ *       500:
+ *         description: Server error
+ */
 export async function POST(req: NextRequest) {
     try {
         // Require authentication and get user from session
@@ -126,8 +235,8 @@ export async function POST(req: NextRequest) {
                 createdById: true,
                 logoMimeType: true,
                 featuredMediaMimeType: true,
-                User: { select: { name: true, email: true } },
-                Junior: { select: { name: true } },
+                user: { select: { name: true, email: true } },
+                junior: { select: { name: true } },
             },
         });
 
@@ -140,8 +249,8 @@ export async function POST(req: NextRequest) {
         // Transform event to include proper URLs for images
         const transformedEvent = {
             ...event,
-            createdBy: event.User,
-            junior: event.Junior,
+            createdBy: event.user,
+            junior: event.junior,
             user: undefined,
             logoUrl: event.logoMimeType ? `/api/events/${event.id}/image?type=logo` : null,
             featuredMediaUrl: event.featuredMediaMimeType ? `/api/events/${event.id}/image?type=featured` : null,

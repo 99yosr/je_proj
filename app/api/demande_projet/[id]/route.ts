@@ -4,6 +4,58 @@ import { requireAuth } from "@/lib/auth";
 import { sendRefusalEmail } from "@/lib/email";
 
 
+/**
+ * @openapi
+ * /api/demande_projet/{id}:
+ *   get:
+ *     tags:
+ *       - Demande Projet
+ *     summary: Get project request by ID
+ *     description: Retrieves a specific project request with feedback. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: Project details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 titre:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *                 dateFin:
+ *                   type: string
+ *                   format: date-time
+ *                 statut:
+ *                   type: string
+ *                   enum: [EN_ATTENTE, ACCEPTE, REFUSE, EN_COURS, TERMINE]
+ *                 juniorId:
+ *                   type: integer
+ *                 Feedback:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       400:
+ *         description: Invalid project ID
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
 export async function GET(
   
   request: NextRequest,
@@ -47,6 +99,55 @@ export async function GET(
  
 }
 
+/**
+ * @openapi
+ * /api/demande_projet/{id}:
+ *   patch:
+ *     tags:
+ *       - Demande Projet
+ *     summary: Update project request status
+ *     description: Updates the status of a project request (ACCEPTE, REFUSE, EN_COURS, TERMINE). Sends refusal email if rejected. Requires authentication.
+ *     security:
+ *       - sessionAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Project ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - statut
+ *             properties:
+ *               statut:
+ *                 type: string
+ *                 enum: [ACCEPTE, REFUSE, EN_COURS, TERMINE]
+ *                 description: New project status
+ *     responses:
+ *       200:
+ *         description: Status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 project:
+ *                   type: object
+ *       400:
+ *         description: Invalid ID or missing status
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
