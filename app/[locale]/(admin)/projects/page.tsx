@@ -5,6 +5,7 @@ import './style.css'
 import ProjectsSortControls, { useSortProjects } from '../components/ProjectsSort'
 import { useSearch } from '../components/SearchContext'
 import Filter from '../../../components/Filter'
+import SearchBar from '../components/SearchBar'
 
 type Project = {
   id: number
@@ -110,7 +111,7 @@ export default function ProjectsPage() {
   const [feedbackLoading, setFeedbackLoading] = useState(false)
   const [feedbackError, setFeedbackError] = useState<string | null>(null)
 
-  const { searchQuery } = useSearch()
+  const { searchQuery, setSearchQuery } = useSearch()
 
   // Filter projects based on search query AND filters
   const filteredProjects = useMemo(() => {
@@ -574,6 +575,14 @@ const handleOpenFeedbackModal = async (project: Project) => {
               </button>
             )}
           </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchBar
+            onSearch={setSearchQuery}
+            placeholder="Search projects by title, description, status, or junior..."
+          />
         </div>
 
         {/* Table Card */}

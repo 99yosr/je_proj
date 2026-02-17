@@ -341,3 +341,124 @@
     width: 280px;
   }
 }
+/* Dark Mode Styles */
+.dark .filter-container {
+  /* Container dark mode handled by parent */
+}
+
+.dark .filter-header {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+.dark .filter-header:hover {
+  border-color: #6b7280;
+}
+
+.dark .filter-title {
+  color: #d1d5db;
+}
+
+.dark .selected-indicator {
+  /* Keep the same for visibility */
+}
+
+.dark .selected-name {
+  background: #2563eb;
+  color: white;
+}
+
+.dark .selected-city {
+  color: #9ca3af;
+}
+
+.dark .clear-button {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.dark .clear-button:hover {
+  background: #991b1b;
+  color: #fecaca;
+}
+
+.dark .toggle-button {
+  background: #4b5563;
+  color: #d1d5db;
+}
+
+.dark .toggle-button:hover {
+  background: #6b7280;
+  color: #f9fafb;
+}
+
+.dark .filter-dropdown {
+  background: #1f2937;
+  border-color: #4b5563;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.dark .search-section {
+  border-bottom-color: #374151;
+}
+
+.dark .search-input {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.dark .search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.dark .search-input::placeholder {
+  color: #6b7280;
+}
+
+.dark .grid-item {
+  border-color: #4b5563;
+  background: #374151;
+}
+
+.dark .grid-item:hover {
+  border-color: #6b7280;
+  background: #4b5563;
+}
+
+.dark .grid-item.selected {
+  border-color: #3b82f6;
+  background: #1e3a8a;
+}
+
+.dark .item-name {
+  color: #f9fafb;
+}
+
+.dark .item-city,
+.dark .item-type {
+  color: #9ca3af;
+}
+
+.dark .check-circle {
+  background: #10b981;
+  color: white;
+}
+
+.dark .no-results {
+  color: #9ca3af;
+}
+
+.dark .filter-footer {
+  border-top-color: #374151;
+  background: #374151;
+}
+
+.dark .total-items {
+  color: #d1d5db;
+}
+
+.dark .filtered-items {
+  color: #60a5fa;
+}

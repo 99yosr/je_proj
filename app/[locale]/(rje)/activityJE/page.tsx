@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
+import SearchBar from '../../(admin)/components/SearchBar'
 
 type Activity = {
   id: number
@@ -40,6 +41,18 @@ export default function ActivityPage() {
     description: ''
   })
   const [submitting, setSubmitting] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Filter activities based on search query
+  const filteredActivities = useMemo(() => {
+    if (!searchQuery) return activities
+    
+    const query = searchQuery.toLowerCase()
+    return activities.filter(activity =>
+      activity.nom.toLowerCase().includes(query) ||
+      activity.description.toLowerCase().includes(query)
+    )
+  }, [activities, searchQuery])
 
   useEffect(() => {
     fetchCurrentUser()
@@ -218,6 +231,14 @@ export default function ActivityPage() {
           </p>
         </div>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchBar
+            onSearch={setSearchQuery}
+            placeholder="Search activities by name or description..."
+          />
+        </div>
+
         {/* Table Card */}
         <div className="table-card">
           <div className="table-wrapper">
@@ -231,14 +252,14 @@ export default function ActivityPage() {
               </thead>
 
               <tbody>
-                {activities.length === 0 ? (
+                {filteredActivities.length === 0 ? (
                   <tr>
                     <td colSpan={3} className="empty-state">
-                      No activities found. Create your first activity!
+                      {searchQuery ? 'No activities found matching your search.' : 'No activities found. Create your first activity!'}
                     </td>
                   </tr>
                 ) : (
-                  activities.map(item => (
+                  filteredActivities.map(item => (
                     <tr key={item.id} className="table-row">
                       <td className="table-cell">
                         <div className="activity-info">

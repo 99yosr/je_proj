@@ -452,3 +452,162 @@
     padding: 20px;
   }
 }
+
+/* Dark Mode Styles */
+.dark .activity-page {
+  background: #111827;
+}
+
+.dark .loading-container {
+  background: #111827;
+}
+
+.dark .loading-text {
+  color: #9ca3af;
+}
+
+.dark .error-container {
+  background: #111827;
+}
+
+.dark .error-box {
+  background: #7f1d1d;
+  border-color: #991b1b;
+}
+
+.dark .error-text {
+  color: #fecaca;
+}
+
+.dark .activity-title {
+  color: #f9fafb;
+}
+
+.dark .activity-subtitle {
+  color: #9ca3af;
+}
+
+.dark .table-card {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.dark .table-head {
+  background: #374151;
+}
+
+.dark .table-header {
+  color: #9ca3af;
+  border-bottom-color: #4b5563;
+}
+
+.dark .table-row {
+  border-bottom-color: #374151;
+}
+
+.dark .table-row:hover {
+  background: #374151;
+}
+
+.dark .activity-item-title,
+.dark .activity-junior {
+  color: #f9fafb;
+}
+
+.dark .activity-description,
+.dark .activity-date {
+  color: #9ca3af;
+}
+
+.dark .btn-edit {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.dark .btn-edit:hover {
+  background: #1e40af;
+  color: #bfdbfe;
+}
+
+.dark .btn-delete {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+.dark .btn-delete:hover {
+  background: #991b1b;
+  color: #fecaca;
+}
+
+.dark .table-footer {
+  background: #374151;
+  border-top-color: #4b5563;
+}
+
+.dark .footer-text {
+  color: #9ca3af;
+}
+
+.dark .footer-count {
+  color: #f9fafb;
+}
+
+.dark .empty-state {
+  color: #9ca3af;
+}
+
+.dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dark .modal-content {
+  background: #1f2937;
+}
+
+.dark .modal-header {
+  border-bottom-color: #374151;
+}
+
+.dark .modal-title {
+  color: #f9fafb;
+}
+
+.dark .modal-close {
+  color: #9ca3af;
+}
+
+.dark .modal-close:hover {
+  background: #374151;
+  color: #f9fafb;
+}
+
+.dark .form-label {
+  color: #d1d5db;
+}
+
+.dark .form-input,
+.dark .form-textarea {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.dark .form-input:focus,
+.dark .form-textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.dark .modal-footer {
+  border-top-color: #374151;
+}
+
+.dark .btn-cancel {
+  background: #374151;
+  color: #d1d5db;
+  border-color: #4b5563;
+}
+
+.dark .btn-cancel:hover {
+  background: #4b5563;
+}

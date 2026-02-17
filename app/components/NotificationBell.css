@@ -287,3 +287,87 @@
     right: -8px;
   }
 }
+
+/* Dark Mode Styles */
+.dark .notification-bell-button {
+  color: #d1d5db;
+}
+
+.dark .notification-bell-button:hover {
+  background-color: #374151;
+}
+
+.dark .notification-dropdown {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.dark .notification-header {
+  border-color: #374151;
+}
+
+.dark .notification-header h3 {
+  color: #f3f4f6;
+}
+
+.dark .notification-close {
+  color: #9ca3af;
+}
+
+.dark .notification-close:hover {
+  background-color: #374151;
+}
+
+.dark .notification-empty {
+  color: #6b7280;
+}
+
+.dark .notification-item {
+  border-color: #374151;
+}
+
+.dark .notification-item:hover {
+  background-color: #374151;
+}
+
+.dark .notification-item.unread {
+  background-color: #1e3a5f;
+}
+
+.dark .notification-message {
+  color: #d1d5db;
+}
+
+.dark .notification-time {
+  color: #6b7280;
+}
+
+.dark .notification-mark-read {
+  color: #6b7280;
+}
+
+.dark .notification-mark-read:hover {
+  background-color: #065f46;
+  color: #10b981;
+}
+
+.dark .notification-delete {
+  color: #6b7280;
+}
+
+.dark .notification-delete:hover {
+  background-color: #7f1d1d;
+  color: #ef4444;
+}
+
+.dark .notification-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark .notification-list::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.dark .notification-list::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}

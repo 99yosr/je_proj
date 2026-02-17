@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { Send } from 'lucide-react'
 import { io, Socket } from 'socket.io-client'
 import './style.css'
+import SearchBar from '../components/SearchBar'
 
 type User = {
   id: string
@@ -274,12 +275,9 @@ export default function MessagesPage() {
           <div className="users-list">
             <h2 className="users-list-title">Users</h2>
             <div className="search-container">
-              <input
-                type="text"
+              <SearchBar
+                onSearch={setUserSearch}
                 placeholder="Search users..."
-                value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
-                className="user-search-input"
               />
             </div>
             <div className="users-list-content">

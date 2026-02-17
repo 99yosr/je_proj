@@ -352,3 +352,129 @@
     max-width: 85%;
   }
 }
+
+/* Dark Mode Styles */
+.dark .messages-page {
+  background: #111827;
+}
+
+.dark .messages-title {
+  color: #f9fafb;
+}
+
+.dark .messages-subtitle {
+  color: #9ca3af;
+}
+
+.dark .users-list {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.dark .users-list-title {
+  color: #f9fafb;
+  border-bottom-color: #374151;
+}
+
+.dark .user-item {
+  border-bottom-color: #374151;
+}
+
+.dark .user-item:hover {
+  background: #374151;
+}
+
+.dark .user-item.active {
+  background: #374151;
+}
+
+.dark .user-name {
+  color: #f9fafb;
+}
+
+.dark .last-message {
+  color: #9ca3af;
+}
+
+.dark .conversation-container {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.dark .conversation-header {
+  background: #374151;
+  border-bottom-color: #4b5563;
+}
+
+.dark .selected-user-name {
+  color: #f9fafb;
+}
+
+.dark .selected-user-email {
+  color: #9ca3af;
+}
+
+.dark .conversation {
+  background: #111827;
+}
+
+.dark .message.received {
+  background: #374151;
+}
+
+.dark .message.sent {
+  background: #1e40af;
+}
+
+.dark .message-text {
+  color: #f9fafb;
+}
+
+.dark .message-time {
+  color: #9ca3af;
+}
+
+.dark .message-input-container {
+  background: #374151;
+  border-top-color: #4b5563;
+}
+
+.dark .message-input {
+  background: #1f2937;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.dark .message-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.dark .send-button {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.dark .empty-conversation {
+  color: #9ca3af;
+}
+
+.dark .loading-container {
+  background: #111827;
+}
+
+.dark .loading-text {
+  color: #9ca3af;
+}
+
+.dark .error-container {
+  background: #111827;
+}
+
+.dark .error-box {
+  background: #7f1d1d;
+  border-color: #991b1b;
+}
+
+.dark .error-text {
+  color: #fecaca;
+}

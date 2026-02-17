@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import ProjectsChartCard from '../components/projByYear'
 import './style.css'
 import FeedbackStatsCard from '../components/AvgNote'
+import SearchBar from '../../(admin)/components/SearchBar'
 
 type Project = {
   id: number
@@ -54,6 +55,19 @@ export default function ProjectsPage() {
     dateFin: ''
   })
   const [submitting, setSubmitting] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Filter projects based on search query
+  const filteredProjects = useMemo(() => {
+    if (!searchQuery) return projects
+    
+    const query = searchQuery.toLowerCase()
+    return projects.filter(project =>
+      project.titre.toLowerCase().includes(query) ||
+      project.description.toLowerCase().includes(query) ||
+      project.statut.toLowerCase().includes(query)
+    )
+  }, [projects, searchQuery])
 
   useEffect(() => {
     fetchCurrentUser()
@@ -301,6 +315,14 @@ export default function ProjectsPage() {
           </p>
         </div>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchBar
+            onSearch={setSearchQuery}
+            placeholder="Search projects by title, description, or status..."
+          />
+        </div>
+
         {/* Table Card */}
         <div className="table-card">
           <div className="table-wrapper">
@@ -315,14 +337,14 @@ export default function ProjectsPage() {
               </thead>
 
               <tbody>
-                {projects.length === 0 ? (
+                {filteredProjects.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="empty-state">
-                      No projects found. Create your first project!
+                      {searchQuery ? 'No projects found matching your search.' : 'No projects found. Create your first project!'}
                     </td>
                   </tr>
                 ) : (
-                  projects.map(item => (
+                  filteredProjects.map(item => (
                     <tr key={item.id} className="table-row">
                       <td className="table-cell">
                         <div className="project-info">

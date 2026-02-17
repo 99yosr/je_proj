@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Menu, LogOut, User } from "lucide-react";
 import NotificationBell from "@/app/components/NotificationBell";
+import ThemeToggle from "@/app/components/ThemeToggle";
 import Link from "next/link";
 
 type NavbarProps = {
@@ -39,13 +40,13 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
   };
 
   return (
-    <nav className="relative bg-white border-b border-gray-200">
+    <nav className="relative bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             <button
               onClick={onToggleSidebar}
-              className="inline-flex items-center justify-center rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:outline-none"
+              className="inline-flex items-center justify-center rounded-md p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none"
             >
               <Menu className="h-6 w-6" />
             </button>
@@ -53,30 +54,31 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
 
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <Link href="/admin" className="flex shrink-0 items-center">
-              <span className="text-2xl font-bold tracking-tight text-gray-900">
-                JET<span className="text-[#E60000]">unisie</span>
+              <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                JET<span className="text-[#E60000] dark:text-red-500">unisie</span>
               </span>
             </Link>
           </div>
 
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 gap-4">
+            <ThemeToggle />
             <NotificationBell />
 
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="relative flex rounded-full focus:outline-none focus:ring-2 focus:ring-[#E60000] focus:ring-offset-2"
+                className="relative flex rounded-full focus:outline-none focus:ring-2 focus:ring-[#E60000] focus:ring-offset-2 dark:focus:ring-offset-gray-800"
               >
-                <div className="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-600 hover:text-[#E60000] hover:bg-red-50 transition-colors">
+                <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#E60000] dark:hover:text-red-500 hover:bg-red-50 dark:hover:bg-gray-600 transition-colors">
                   <User className="w-5 h-5" />
                 </div>
               </button>
 
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-lg bg-white border border-gray-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 py-1">
+                <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 py-1">
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-[#E60000] transition-colors"
+                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-[#E60000] dark:hover:text-red-500 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
                     Se déconnecter

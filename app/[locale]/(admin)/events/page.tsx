@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import './style.css'
 import EventsSortControls, { useSortEvents } from '../components/EventsSort'
+import SearchBar from '../components/SearchBar'
 
 type Event = {
     id: number
@@ -358,20 +359,17 @@ export default function EventsPage() {
                     </div>
                 </div>
 
+                {/* Search Bar */}
+                <div className="mb-6">
+                    <SearchBar
+                        onSearch={setSearch}
+                        placeholder="Search events by title, description, or location..."
+                    />
+                </div>
+
                 {/* Filters Section */}
                 <div className="filters-card">
                     <div className="filters-grid">
-                        <div className="filter-group">
-                            <label className="filter-label">Search</label>
-                            <input
-                                type="text"
-                                placeholder="Search title or description..."
-                                className="filter-input"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
-                        </div>
-
                         <div className="filter-group">
                             <label className="filter-label">Junior</label>
                             <select

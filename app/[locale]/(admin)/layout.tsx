@@ -2,20 +2,8 @@
 
 import Navbar from "./components/navbar";
 import Sidebar from "./components/sidebar";
-import { SearchProvider, useSearch } from "./components/SearchContext";
-import SearchBar from "./components/SearchBar";
-
-function SearchBarWrapper() {
-  const { setSearchQuery } = useSearch();
-  return (
-    <div className="mb-6">
-      <SearchBar
-        onSearch={setSearchQuery}
-        placeholder="Search across all dashboards..."
-      />
-    </div>
-  );
-}
+import { SearchProvider } from "./components/SearchContext";
+import { ThemeProvider } from "@/app/contexts/ThemeContext";
 
 export default function AdminLayout({
   children,
@@ -23,23 +11,24 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SearchProvider>
-      <div className="flex h-screen bg-[#F5F5F7] text-gray-900">
-        {/* Sidebar - fixed width on desktop, hidden on mobile */}
-        <Sidebar />
+    <ThemeProvider>
+      <SearchProvider>
+        <div className="flex h-screen bg-[#F5F5F7] dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+          {/* Sidebar - fixed width on desktop, hidden on mobile */}
+          <Sidebar />
 
-        {/* Main content area */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Navbar at top */}
-          <Navbar />
+          {/* Main content area */}
+          <div className="flex flex-1 flex-col overflow-hidden">
+            {/* Navbar at top */}
+            <Navbar />
 
-          {/* Page content */}
-          <main className="flex-1 overflow-y-auto p-6">
-             <SearchBarWrapper /> 
-            {children}
-          </main>
+            {/* Page content */}
+            <main className="flex-1 overflow-y-auto p-6">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
-    </SearchProvider>
+      </SearchProvider>
+    </ThemeProvider>
   );
 }
