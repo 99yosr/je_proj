@@ -1,16 +1,14 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 import { requireAuth } from '../../../lib/auth';
-import { notifyAllAdmins } from '../../../lib/socket';
 
 export async function GET(req: NextRequest) {
+
     try {
-        // Get juniorId from query params (optional filter)
-        const { searchParams } = new URL(req.url);
-        const juniorIdParam = searchParams.get('juniorId');
 
         const events = await prisma.event.findMany({
-            where: juniorIdParam ? { juniorId: parseInt(juniorIdParam) } : {},
+
             select: {
                 id: true,
                 title: true,
@@ -48,6 +46,13 @@ export async function GET(req: NextRequest) {
         }));
 
         return NextResponse.json(transformedEvents);
+
+
+
+
+
+
+
     } catch (error) {
         console.error("Failed to fetch events:", error);
         return NextResponse.json({ error: "Failed to fetch events" }, { status: 500 });
@@ -112,44 +117,12 @@ export async function POST(req: NextRequest) {
                 featuredMediaMimeType,
                 isActive: true,
             } as any,
-            select: {
-                id: true,
-                title: true,
-                slug: true,
-                shortDescription: true,
-                fullDescription: true,
-                date: true,
-                location: true,
-                isActive: true,
-                updatedAt: true,
-                juniorId: true,
-                createdById: true,
-                logoMimeType: true,
-                featuredMediaMimeType: true,
-                User: { select: { name: true, email: true } },
-                Junior: { select: { name: true } },
-            },
         });
 
-        // Send notification to all admins
-        await notifyAllAdmins(
-            `New event "${title}" has been created by ${user.name}`,
-            prisma
-        );
-
-        // Transform event to include proper URLs for images
-        const transformedEvent = {
-            ...event,
-            createdBy: event.User,
-            junior: event.Junior,
-            user: undefined,
-            logoUrl: event.logoMimeType ? `/api/events/${event.id}/image?type=logo` : null,
-            featuredMediaUrl: event.featuredMediaMimeType ? `/api/events/${event.id}/image?type=featured` : null,
-            logoMimeType: undefined,
-            featuredMediaMimeType: undefined,
-        };
-
-        return NextResponse.json(transformedEvent, { status: 201 });
+        return NextResponse.json({
+            message: "Event created",
+            id: event.id
+        }, { status: 201 });
 
     } catch (error: any) {
         console.error("Error creating event:", error);
