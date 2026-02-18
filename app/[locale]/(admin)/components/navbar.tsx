@@ -3,7 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import { Menu, LogOut, User } from "lucide-react";
 import NotificationBell from "@/app/components/NotificationBell";
+
 import ThemeToggle from "@/app/components/ThemeToggle";
+
+import LanguageSwitcher from "@/app/components/LanguageSwitcher";
+
 import Link from "next/link";
 
 type NavbarProps = {
@@ -61,7 +65,11 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
           </div>
 
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 gap-4">
+
             <ThemeToggle />
+
+            <LanguageSwitcher />
+
             <NotificationBell />
 
             <div className="relative" ref={profileRef}>
@@ -76,6 +84,14 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
 
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 py-1">
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-[#E60000] dark:hover:text-red-500 transition-colors"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    <User className="w-4 h-4" />
+                    Profil
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-[#E60000] dark:hover:text-red-500 transition-colors"
